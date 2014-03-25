@@ -23,13 +23,8 @@
     F2AppView*                  _f2WatchlistView;
     F2AppView*                  _f2QuoteView;
     F2AppView*                  _f2CustomView;
-    
-    UIView*                     _flipContainer;
+
     UIView*                     _customEditView;
-    UIButton*                   _customViewInfoButton;
-    UIButton*                   _customViewDoneButton;
-    UIButton*                   _customViewStockNewsButton;
-    UIButton*                   _customViewMarketNewsButton;
     UITextView*                 _configurationTextView;
     
     NSString*                   _currentSymbol;
@@ -50,7 +45,7 @@
     _symbolArray = [NSMutableArray new];
     
     _searchBarContainer = [UIView new];
-    [_searchBarContainer setFrame:CGRectMake(margin, 20, 1008, 45)];
+    [_searchBarContainer setFrame:CGRectMake(56, 20, 904, 45)];
     [_searchBarContainer setBackgroundColor:[UIColor whiteColor]];
     [_searchBarContainer setClipsToBounds:YES];
     [self.view addSubview:_searchBarContainer];
@@ -69,8 +64,21 @@
     [_searchDisplayController setSearchResultsDataSource:self];
     [_searchDisplayController setSearchResultsDelegate:self];
     
+    UIButton* refreshButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    [refreshButton.titleLabel setFont:[UIFont fontWithName:@"CourierNewPSMT" size:48]];
+    [refreshButton setTitle:@"🔄" forState:UIControlStateNormal];
+    [refreshButton setFrame:CGRectMake(CGRectGetMaxX(_searchBarContainer.frame)+8, 24, 48, 48)];
+    [refreshButton addTarget:self action:@selector(resfresh) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:refreshButton];
+    
+    UIButton* f2Logo = [UIButton buttonWithType:UIButtonTypeCustom];
+    [f2Logo addTarget:self action:@selector(f2ButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+    [f2Logo setImage:[UIImage imageNamed:@"Icon-40"] forState:UIControlStateNormal];
+    [f2Logo setFrame:CGRectMake(margin, 22, 40, 40)];
+    [self.view addSubview:f2Logo];
+    
     //Create the Watchlist F2 View
-    _f2WatchlistView = [[F2AppView alloc]initWithFrame:CGRectMake(CGRectGetMaxX(_f2ChartView.frame)+margin, CGRectGetMaxY(_searchBarContainer.frame)+margin, 310, 329)];
+    _f2WatchlistView = [[F2AppView alloc]initWithFrame:CGRectMake(CGRectGetMaxX(_f2ChartView.frame)+margin, CGRectGetMaxY(_searchBarContainer.frame)+margin, 310, 336)];
     [_f2WatchlistView setDelegate:self];
     [_f2WatchlistView setScrollable:YES];
     [_f2WatchlistView setScale:0.9f];
@@ -80,7 +88,7 @@
     [self.view addSubview:_f2WatchlistView];
     
     //Create the Quote F2 View
-    _f2QuoteView = [[F2AppView alloc]initWithFrame:CGRectMake(CGRectGetMaxX(_f2WatchlistView.frame)+margin, CGRectGetMaxY(_searchBarContainer.frame)+margin, 350, 329)];
+    _f2QuoteView = [[F2AppView alloc]initWithFrame:CGRectMake(CGRectGetMaxX(_f2WatchlistView.frame)+margin, CGRectGetMaxY(_searchBarContainer.frame)+margin, 350, 336)];
     [_f2QuoteView setDelegate:self];
     [_f2QuoteView setScrollable:NO];
     [_f2QuoteView setScale:0.9f];
@@ -90,7 +98,7 @@
     [self.view addSubview:_f2QuoteView];
     
     //Create the Chart F2 View
-    _f2ChartView = [[F2AppView alloc]initWithFrame:CGRectMake(margin, 768-margin-350, CGRectGetMaxX(_f2QuoteView.frame)-margin, 350)];
+    _f2ChartView = [[F2AppView alloc]initWithFrame:CGRectMake(margin, CGRectGetMaxY(_f2QuoteView.frame)+margin, CGRectGetMaxX(_f2QuoteView.frame)-margin, 343)];
     [_f2ChartView setDelegate:self];
     [_f2ChartView setScrollable:NO];
     [_f2ChartView setScale:0.8f];
@@ -101,66 +109,65 @@
     [self.view addSubview:_f2ChartView];
     
     //Create Flip Containter
-    _flipContainer = [[UIView alloc]initWithFrame:CGRectMake(CGRectGetMaxX(_f2QuoteView.frame)+margin, CGRectGetMaxY(_searchBarContainer.frame)+margin, 332, 687)];
-    [self.view addSubview:_flipContainer];
+    UIView* flipContainer = [[UIView alloc]initWithFrame:CGRectMake(CGRectGetMaxX(_f2QuoteView.frame)+margin, CGRectGetMaxY(_searchBarContainer.frame)+margin, 332, 687)];
+    [self.view addSubview:flipContainer];
     
     
-    CGRect _editViewFrame = _flipContainer.bounds;
-    _editViewFrame.size.height = 352;
+    CGRect _editViewFrame = flipContainer.bounds;
+    _editViewFrame.size.height = 336;
     _customEditView = [[UIView alloc]initWithFrame:_editViewFrame];
     [_customEditView setBackgroundColor:[UIColor colorWithWhite:0 alpha:0.5]];
     
 
-    _configurationTextView = [[UITextView alloc]initWithFrame:CGRectMake(margin, margin, CGRectGetWidth(_flipContainer.frame)-(margin*2), 240)];
+    _configurationTextView = [[UITextView alloc]initWithFrame:CGRectMake(margin, margin, CGRectGetWidth(flipContainer.frame)-(margin*2), 224)];
     [_configurationTextView setText:@"[{\n\"appId\": \"com_openf2_examples_csharp_stocknews\",\n\"manifestUrl\": \"http://www.openf2.org/Examples/Apps\",\n\"name\": \"Stock News\"\n}]"];
     [_configurationTextView setFont:[UIFont fontWithName:@"CourierNewPSMT" size:15]];
     [_customEditView addSubview:_configurationTextView];
     
-    _customViewMarketNewsButton = [UIButton buttonWithType:UIButtonTypeSystem];
-    [_customViewMarketNewsButton.titleLabel setFont:[UIFont fontWithName:@"Helvetica-Bold" size:20]];
-    [_customViewMarketNewsButton setTitle:@"Market News" forState:UIControlStateNormal];
-    [_customViewMarketNewsButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-    [_customViewMarketNewsButton.layer setBorderColor:[UIColor whiteColor].CGColor];
-    [_customViewMarketNewsButton.layer setBorderWidth:1];
-    [_customViewMarketNewsButton setFrame:CGRectMake(margin, CGRectGetMaxY(_configurationTextView.frame)+margin, (CGRectGetWidth(_customEditView.frame)/2)-(margin*1.5), 40)];
-    [_customViewMarketNewsButton addTarget:self action:@selector(marketNewsButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-    [_customEditView addSubview:_customViewMarketNewsButton];
+    UIButton* customViewMarketNewsButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    [customViewMarketNewsButton.titleLabel setFont:[UIFont fontWithName:@"Helvetica-Bold" size:20]];
+    [customViewMarketNewsButton setTitle:@"Market News" forState:UIControlStateNormal];
+    [customViewMarketNewsButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [customViewMarketNewsButton.layer setBorderColor:[UIColor whiteColor].CGColor];
+    [customViewMarketNewsButton.layer setBorderWidth:1];
+    [customViewMarketNewsButton setFrame:CGRectMake(margin, CGRectGetMaxY(_configurationTextView.frame)+margin, (CGRectGetWidth(_customEditView.frame)/2)-(margin*1.5), 40)];
+    [customViewMarketNewsButton addTarget:self action:@selector(marketNewsButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+    [_customEditView addSubview:customViewMarketNewsButton];
     
-    _customViewStockNewsButton = [UIButton buttonWithType:UIButtonTypeSystem];
-    [_customViewStockNewsButton.titleLabel setFont:[UIFont fontWithName:@"Helvetica-Bold" size:20]];
-    [_customViewStockNewsButton setTitle:@"Stock News" forState:UIControlStateNormal];
-    [_customViewStockNewsButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-    [_customViewStockNewsButton.layer setBorderColor:[UIColor whiteColor].CGColor];
-    [_customViewStockNewsButton.layer setBorderWidth:1];
-    [_customViewStockNewsButton setFrame:CGRectMake(CGRectGetMaxX(_customViewMarketNewsButton.frame)+margin, CGRectGetMaxY(_configurationTextView.frame)+margin, (CGRectGetWidth(_customEditView.frame)/2)-(margin*1.5), 40)];
+    UIButton* customViewStockNewsButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    [customViewStockNewsButton.titleLabel setFont:[UIFont fontWithName:@"Helvetica-Bold" size:20]];
+    [customViewStockNewsButton setTitle:@"Stock News" forState:UIControlStateNormal];
+    [customViewStockNewsButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [customViewStockNewsButton.layer setBorderColor:[UIColor whiteColor].CGColor];
+    [customViewStockNewsButton.layer setBorderWidth:1];
+    [customViewStockNewsButton setFrame:CGRectMake(CGRectGetMaxX(customViewMarketNewsButton.frame)+margin, CGRectGetMaxY(_configurationTextView.frame)+margin, (CGRectGetWidth(_customEditView.frame)/2)-(margin*1.5), 40)];
 
-    [_customViewStockNewsButton addTarget:self action:@selector(stockNewsButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-    [_customEditView addSubview:_customViewStockNewsButton];
+    [customViewStockNewsButton addTarget:self action:@selector(stockNewsButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+    [_customEditView addSubview:customViewStockNewsButton];
     
-    _customViewDoneButton = [UIButton buttonWithType:UIButtonTypeSystem];
-    [_customViewDoneButton.titleLabel setFont:[UIFont fontWithName:@"Helvetica-Bold" size:20]];
-    [_customViewDoneButton setTitle:@"Done" forState:UIControlStateNormal];
-    [_customViewDoneButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-    [_customViewDoneButton setBackgroundColor:[UIColor colorWithRed:29.0f/255 green:104.0f/255 blue:153.0f/255 alpha:1]];
-    [_customViewDoneButton setFrame:CGRectMake(CGRectGetWidth(_customEditView.frame)/4, CGRectGetMaxY(_customViewStockNewsButton.frame)+margin, CGRectGetWidth(_customEditView.frame)/2, 40)];
-    
-    [_customViewDoneButton addTarget:self action:@selector(donePressed) forControlEvents:UIControlEventTouchUpInside];
-    [_customEditView addSubview:_customViewDoneButton];
+    UIButton* customViewDoneButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    [customViewDoneButton.titleLabel setFont:[UIFont fontWithName:@"Helvetica-Bold" size:20]];
+    [customViewDoneButton setTitle:@"Done" forState:UIControlStateNormal];
+    [customViewDoneButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [customViewDoneButton setBackgroundColor:[UIColor colorWithRed:29.0f/255 green:104.0f/255 blue:153.0f/255 alpha:1]];
+    [customViewDoneButton setFrame:CGRectMake(CGRectGetWidth(_customEditView.frame)/4, CGRectGetMaxY(customViewStockNewsButton.frame)+margin, CGRectGetWidth(_customEditView.frame)/2, 40)];
+    [customViewDoneButton addTarget:self action:@selector(donePressed) forControlEvents:UIControlEventTouchUpInside];
+    [_customEditView addSubview:customViewDoneButton];
     
     //Create the Custom F2 View
-    _f2CustomView = [[F2AppView alloc]initWithFrame:_flipContainer.bounds];
+    _f2CustomView = [[F2AppView alloc]initWithFrame:flipContainer.bounds];
     [_f2CustomView setDelegate:self];
     [_f2CustomView setScrollable:YES];
     [_f2CustomView setScale:0.9f];
     [_f2CustomView setAppJSONConfig:@"[{\"appId\": \"com_openf2_examples_csharp_stocknews\",\n\"manifestUrl\": \"http://www.openf2.org/Examples/Apps\",\n\"name\": \"Stock News\"\n}]"];
     [_f2CustomView registerEvent:@"F2.Constants.Events.CONTAINER_SYMBOL_CHANGE" key:kEventContainerSymbolChange dataValueGetter:@"data.symbol"];
     [_f2CustomView loadApp];
-    [_flipContainer addSubview:_f2CustomView];
+    [flipContainer addSubview:_f2CustomView];
     
-    _customViewInfoButton = [UIButton buttonWithType:UIButtonTypeInfoDark];
-    [_customViewInfoButton setFrame:CGRectMake(CGRectGetWidth(_flipContainer.frame)-32, CGRectGetHeight(_flipContainer.frame)-32, 32, 32)];
-    [_customViewInfoButton addTarget:self action:@selector(infoPressed) forControlEvents:UIControlEventTouchUpInside];
-    [_f2CustomView addSubview:_customViewInfoButton];
+     UIButton* customViewInfoButton = [UIButton buttonWithType:UIButtonTypeInfoDark];
+    [customViewInfoButton setFrame:CGRectMake(CGRectGetWidth(flipContainer.frame)-32, CGRectGetHeight(flipContainer.frame)-32, 32, 32)];
+    [customViewInfoButton addTarget:self action:@selector(infoPressed) forControlEvents:UIControlEventTouchUpInside];
+    [_f2CustomView addSubview:customViewInfoButton];
     
 }
 
@@ -246,6 +253,21 @@
 
 -(void)stockNewsButtonPressed{
     [_configurationTextView setText:@"[{\n\"appId\": \"com_openf2_examples_csharp_stocknews\",\n\"manifestUrl\": \"http://www.openf2.org/Examples/Apps\",\n\"name\": \"Stock News\"\n}]"];
+}
+
+-(void)resfresh{
+    NSString * customConfig = @"[{\n\"appId\": \"com_openf2_examples_csharp_stocknews\",\n\"manifestUrl\": \"http://www.openf2.org/Examples/Apps\",\n\"name\": \"Stock News\"\n}]";
+    [_configurationTextView setText:customConfig];
+    [_f2CustomView setAppJSONConfig:customConfig];
+    _currentSymbol = @"MSFT";//this seems to be the default
+    [_f2CustomView loadApp];
+    [_f2ChartView loadApp];
+    [_f2QuoteView loadApp];
+    [_f2WatchlistView loadApp];
+}
+
+- (void)f2ButtonPressed {
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString: @"http://www.openf2.org"]];
 }
 
 #pragma mark UISearchBarDelegate Methods
