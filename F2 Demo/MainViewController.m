@@ -23,6 +23,15 @@
     F2AppView*                  _f2WatchlistView;
     F2AppView*                  _f2QuoteView;
     F2AppView*                  _f2CustomView;
+    
+    UIView*                     _flipContainer;
+    UIView*                     _customEditView;
+    UIButton*                   _customViewInfoButton;
+    UIButton*                   _customViewDoneButton;
+    UIButton*                   _customViewStockNewsButton;
+    UIButton*                   _customViewMarketNewsButton;
+    UITextView*                 _configurationTextView;
+    
     NSString*                   _currentSymbol;
     UIView*                     _searchBarContainer;
     UISearchBar*                _searchBar;
@@ -92,15 +101,66 @@
     [_f2ChartView loadApp];
     [self.view addSubview:_f2ChartView];
     
+    //Create Flip Containter
+    _flipContainer = [[UIView alloc]initWithFrame:CGRectMake(CGRectGetMaxX(_f2QuoteView.frame)+margin, CGRectGetMaxY(_searchBarContainer.frame)+margin, 332, 687)];
+    [self.view addSubview:_flipContainer];
+    
+    
+    _customEditView = [[UIView alloc]initWithFrame:_flipContainer.bounds];
+    [_customEditView setBackgroundColor:[UIColor colorWithWhite:0 alpha:0.5]];
+    
+
+    _configurationTextView = [[UITextView alloc]initWithFrame:CGRectMake(margin, margin, CGRectGetWidth(_flipContainer.frame)-(margin*2), 240)];
+    [_configurationTextView setText:@"[{\n\"appId\": \"com_openf2_examples_csharp_stocknews\",\n\"manifestUrl\": \"http://www.openf2.org/Examples/Apps\",\n\"name\": \"Stock News\"\n}]"];
+    [_configurationTextView setFont:[UIFont fontWithName:@"CourierNewPSMT" size:15]];
+    [_customEditView addSubview:_configurationTextView];
+    
+    _customViewMarketNewsButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    [_customViewMarketNewsButton.titleLabel setFont:[UIFont fontWithName:@"Helvetica-Bold" size:20]];
+    [_customViewMarketNewsButton setTitle:@"Market News" forState:UIControlStateNormal];
+    [_customViewMarketNewsButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [_customViewMarketNewsButton.layer setBorderColor:[UIColor whiteColor].CGColor];
+    [_customViewMarketNewsButton.layer setBorderWidth:1];
+    [_customViewMarketNewsButton setFrame:CGRectMake(margin, CGRectGetMaxY(_configurationTextView.frame)+margin, (CGRectGetWidth(_customEditView.frame)/2)-(margin*1.5), 40)];
+    [_customViewMarketNewsButton addTarget:self action:@selector(marketNewsButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+    [_customEditView addSubview:_customViewMarketNewsButton];
+    
+    _customViewStockNewsButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    [_customViewStockNewsButton.titleLabel setFont:[UIFont fontWithName:@"Helvetica-Bold" size:20]];
+    [_customViewStockNewsButton setTitle:@"Stock News" forState:UIControlStateNormal];
+    [_customViewStockNewsButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [_customViewStockNewsButton.layer setBorderColor:[UIColor whiteColor].CGColor];
+    [_customViewStockNewsButton.layer setBorderWidth:1];
+    [_customViewStockNewsButton setFrame:CGRectMake(CGRectGetMaxX(_customViewMarketNewsButton.frame)+margin, CGRectGetMaxY(_configurationTextView.frame)+margin, (CGRectGetWidth(_customEditView.frame)/2)-(margin*1.5), 40)];
+
+    [_customViewStockNewsButton addTarget:self action:@selector(stockNewsButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+    [_customEditView addSubview:_customViewStockNewsButton];
+    
+    _customViewDoneButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    [_customViewDoneButton.titleLabel setFont:[UIFont fontWithName:@"Helvetica-Bold" size:20]];
+    [_customViewDoneButton setTitle:@"Done" forState:UIControlStateNormal];
+    [_customViewDoneButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [_customViewDoneButton setBackgroundColor:[UIColor colorWithRed:29.0f/255 green:104.0f/255 blue:153.0f/255 alpha:1]];
+    [_customViewDoneButton setFrame:CGRectMake(CGRectGetWidth(_customEditView.frame)/4, CGRectGetMaxY(_customViewStockNewsButton.frame)+margin, CGRectGetWidth(_customEditView.frame)/2, 40)];
+    
+    [_customViewDoneButton addTarget:self action:@selector(donePressed) forControlEvents:UIControlEventTouchUpInside];
+    [_customEditView addSubview:_customViewDoneButton];
+    
     //Create the Custom F2 View
-    _f2CustomView = [[F2AppView alloc]initWithFrame:CGRectMake(CGRectGetMaxX(_f2QuoteView.frame)+margin, CGRectGetMaxY(_searchBarContainer.frame)+margin, 332, 687)];
+    _f2CustomView = [[F2AppView alloc]initWithFrame:_flipContainer.bounds];
     [_f2CustomView setDelegate:self];
     [_f2CustomView setScrollable:YES];
     [_f2CustomView setScale:0.9f];
-    [_f2CustomView setAppJSONConfig:@"[{\"appId\": \"com_openf2_examples_csharp_stocknews\",\"manifestUrl\": \"http://www.openf2.org/Examples/Apps\",\"name\": \"Quote\"}]"];
+    [_f2CustomView setAppJSONConfig:@"[{\"appId\": \"com_openf2_examples_csharp_stocknews\",\n\"manifestUrl\": \"http://www.openf2.org/Examples/Apps\",\n\"name\": \"Stock News\"\n}]"];
     [_f2CustomView registerEvent:@"F2.Constants.Events.CONTAINER_SYMBOL_CHANGE" key:kEventContainerSymbolChange dataValueGetter:@"data.symbol"];
     [_f2CustomView loadApp];
-    [self.view addSubview:_f2CustomView];
+    [_flipContainer addSubview:_f2CustomView];
+    
+    _customViewInfoButton = [UIButton buttonWithType:UIButtonTypeInfoDark];
+    [_customViewInfoButton setFrame:CGRectMake(CGRectGetWidth(_flipContainer.frame)-32, CGRectGetHeight(_flipContainer.frame)-32, 32, 32)];
+    [_customViewInfoButton addTarget:self action:@selector(infoPressed) forControlEvents:UIControlEventTouchUpInside];
+    [_f2CustomView addSubview:_customViewInfoButton];
+    
 }
 
 -(void)viewDidAppear:(BOOL)animated{
@@ -153,6 +213,37 @@
         [_f2QuoteView sendJavaScript:[NSString stringWithFormat:@"F2.Events.emit(F2.Constants.Events.CONTAINER_SYMBOL_CHANGE, { 'symbol': '%@' });",symbol]];
         [_f2CustomView sendJavaScript:[NSString stringWithFormat:@"F2.Events.emit(F2.Constants.Events.CONTAINER_SYMBOL_CHANGE, { 'symbol': '%@' });",symbol]];
     }
+}
+
+-(void)infoPressed{
+    [UIView transitionFromView:_f2CustomView toView:_customEditView duration:1 options:UIViewAnimationOptionTransitionFlipFromRight completion:^(BOOL finished) {
+       
+    }];
+}
+-(void)donePressed{
+    NSString * newConfig = _configurationTextView.text;
+    if ([_configurationTextView isFirstResponder]) {
+        [_configurationTextView resignFirstResponder];
+    }
+    NSError* error;
+    [NSJSONSerialization JSONObjectWithData:[newConfig dataUsingEncoding:NSUTF8StringEncoding] options:kNilOptions error:&error];
+    if (error) {
+        [[[UIAlertView alloc]initWithTitle:@"Error" message:@"error parsing JSON" delegate:NULL cancelButtonTitle:@"OK" otherButtonTitles:NULL]show];
+    }else{
+        [_f2CustomView setAppJSONConfig:newConfig];
+        [_f2CustomView loadApp];
+        [UIView transitionFromView:_customEditView toView:_f2CustomView duration:1 options:UIViewAnimationOptionTransitionFlipFromLeft completion:^(BOOL finished) {
+            
+        }];
+    }
+}
+
+-(void)marketNewsButtonPressed{
+    [_configurationTextView setText:@"[{\n\"appId\": \"com_openf2_examples_csharp_marketnews\",\n\"manifestUrl\": \"http://www.openf2.org/Examples/Apps\",\n\"name\": \"Market News\"\n}]"];
+}
+
+-(void)stockNewsButtonPressed{
+    [_configurationTextView setText:@"[{\n\"appId\": \"com_openf2_examples_csharp_stocknews\",\n\"manifestUrl\": \"http://www.openf2.org/Examples/Apps\",\n\"name\": \"Stock News\"\n}]"];
 }
 
 #pragma mark UISearchBarDelegate Methods
