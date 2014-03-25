@@ -41,24 +41,24 @@
     _symbolArray = [NSMutableArray new];
     
     _searchBarContainer = [UIView new];
-    _searchBarContainer.frame = CGRectMake(margin, 20, 1008, 45);
-    _searchBarContainer.backgroundColor = [UIColor whiteColor];
-    _searchBarContainer.clipsToBounds = YES;
+    [_searchBarContainer setFrame:CGRectMake(margin, 20, 1008, 45)];
+    [_searchBarContainer setBackgroundColor:[UIColor whiteColor]];
+    [_searchBarContainer setClipsToBounds:YES];
     [self.view addSubview:_searchBarContainer];
     
     _searchBar = [UISearchBar new];
-    _searchBar.delegate = self;
-    _searchBar.placeholder=@"Search a Symbol";
-    _searchBar.barTintColor = [UIColor clearColor];
-    _searchBar.searchBarStyle = UISearchBarStyleProminent;
-    _searchBar.tintColor = self.view.backgroundColor;
-    _searchBar.frame = _searchBarContainer.bounds;
+    [_searchBar setDelegate:self];
+    [_searchBar setPlaceholder:@"Search a Symbol"];
+    [_searchBar setBarTintColor:[UIColor clearColor]];
+    [_searchBar setSearchBarStyle:UISearchBarStyleProminent];
+    [_searchBar setTintColor:self.view.backgroundColor];
+    [_searchBar setFrame:_searchBarContainer.bounds];
     [_searchBarContainer addSubview:_searchBar];
     
     _searchDisplayController = [[UISearchDisplayController alloc]initWithSearchBar:_searchBar contentsController:self];
-    _searchDisplayController.delegate = self;
-    _searchDisplayController.searchResultsDataSource = self;
-    _searchDisplayController.searchResultsDelegate = self;
+    [_searchDisplayController setDelegate:self];
+    [_searchDisplayController setSearchResultsDataSource:self];
+    [_searchDisplayController setSearchResultsDelegate:self];
     
     
     //Create the Watchlist F2 View
@@ -116,18 +116,18 @@
 }
 
 #pragma mark "Private" Methods
-- (void)searchFor:(NSString *)searchText {
+- (void)searchFor:(NSString*)searchText {
     [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
     
-    NSString * searchURL = [NSString stringWithFormat:@"http://dev.markitondemand.com/Api/v2/Lookup/json?input=%@",searchText];
-    NSURL *URL = [NSURL URLWithString:searchURL];
-    NSURLRequest *request = [NSURLRequest requestWithURL:URL];
-    NSURLSession *session = [NSURLSession sharedSession];
+    NSString* searchURL = [NSString stringWithFormat:@"http://dev.markitondemand.com/Api/v2/Lookup/json?input=%@",searchText];
+    NSURL* URL = [NSURL URLWithString:searchURL];
+    NSURLRequest* request = [NSURLRequest requestWithURL:URL];
+    NSURLSession* session = [NSURLSession sharedSession];
     _searchTask = [session dataTaskWithRequest:request
-                             completionHandler:^(NSData *data, NSURLResponse *response, NSError *sessionError) {
+                             completionHandler:^(NSData* data, NSURLResponse* response, NSError* sessionError) {
                                  if (!sessionError) {
-                                     NSError *JSONerror = nil;
-                                     NSArray * responses = [NSJSONSerialization JSONObjectWithData:data options:0 error:&JSONerror];
+                                     NSError* JSONerror = nil;
+                                     NSArray* responses = [NSJSONSerialization JSONObjectWithData:data options:0 error:&JSONerror];
                                      if (JSONerror){
                                          NSLog(@"JSONObjectWithData error: %@", JSONerror);
                                      }else{
@@ -146,7 +146,7 @@
     [_searchTask resume];
 }
 
-- (void)goForSymbol:(NSString *)symbol {
+- (void)goForSymbol:(NSString*)symbol {
     if (![_currentSymbol isEqualToString:symbol]) {
         _currentSymbol = symbol;
         [_f2ChartView sendJavaScript:[NSString stringWithFormat:@"F2.Events.emit(F2.Constants.Events.CONTAINER_SYMBOL_CHANGE, { 'symbol': '%@' });",symbol]];
@@ -156,7 +156,7 @@
 }
 
 #pragma mark UISearchBarDelegate Methods
-- (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText{
+- (void)searchBar:(UISearchBar*)searchBar textDidChange:(NSString*)searchText{
     [_searchTask cancel];
     if (searchText.length>0) {
         [self searchFor:searchText];
@@ -167,34 +167,34 @@
 }
 
 #pragma mark UITableViewDataSource Methods
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+- (NSInteger)tableView:(UITableView*)tableView numberOfRowsInSection:(NSInteger)section{
     return _symbolArray.count;
 }
 
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
-    UITableViewCell * cell = [tableView dequeueReusableCellWithIdentifier:@"searchResultCell"];
+- (UITableViewCell*)tableView:(UITableView*)tableView cellForRowAtIndexPath:(NSIndexPath*)indexPath{
+    UITableViewCell* cell = [tableView dequeueReusableCellWithIdentifier:@"searchResultCell"];
     if (!cell) {
         cell = [[UITableViewCell alloc]initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:@"searchResultCell"];
-        cell.textLabel.textColor = [UIColor blackColor];
-        cell.detailTextLabel.textColor = self.view.backgroundColor;
+        [cell.textLabel setTextColor:[UIColor blackColor]];
+        [cell.detailTextLabel setTextColor:self.view.backgroundColor];
     }
-    NSDictionary * symbol = [_symbolArray objectAtIndex:indexPath.row];
+    NSDictionary* symbol = [_symbolArray objectAtIndex:indexPath.row];
     [cell.textLabel setText:symbol[kSymbolKey]];
     [cell.detailTextLabel setText:[NSString stringWithFormat:@"%@ - %@",symbol[kNameKey],symbol[kExhangeKey]]];
     return cell;
 }
 
 #pragma mark UITableViewDelegate Methods
--(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
-    NSDictionary * symbol = [_symbolArray objectAtIndex:indexPath.row];
+-(void)tableView:(UITableView*)tableView didSelectRowAtIndexPath:(NSIndexPath*)indexPath{
+    NSDictionary* symbol = [_symbolArray objectAtIndex:indexPath.row];
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     [_searchDisplayController setActive:NO animated:YES];
-    _searchBar.text = [NSString stringWithFormat:@"%@ %@",symbol[kSymbolKey],symbol[kNameKey]];
+    [_searchBar setText:[NSString stringWithFormat:@"%@ %@",symbol[kSymbolKey],symbol[kNameKey]]];
     [self goForSymbol:symbol[kSymbolKey]];
 }
 
 #pragma mark F2AppViewDelegate methods
--(void)F2View:(F2AppView *)appView messageRecieved:(NSString *)message withKey:(NSString *)key{
+-(void)F2View:(F2AppView*)appView messageRecieved:(NSString*)message withKey:(NSString*)key{
     if ([key isEqualToString:kEventContainerSymbolChange]) {
         NSLog(@"Container Symbol Change");
     }else if ([key isEqualToString:kEventAppSymbolChange]){
