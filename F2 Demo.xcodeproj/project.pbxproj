@@ -455,6 +455,7 @@
 				7E2CC41D18E1DA9000697868 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		7E2CC41E18E1DA9000697868 /* Build configuration list for PBXNativeTarget "F2 DemoTests" */ = {
 			isa = XCConfigurationList;
@@ -463,6 +464,7 @@
 				7E2CC42018E1DA9000697868 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
