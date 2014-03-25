@@ -217,6 +217,7 @@
 }
 
 -(void)infoPressed{
+    [_configurationTextView becomeFirstResponder];
     [UIView transitionFromView:_f2CustomView toView:_customEditView duration:1 options:UIViewAnimationOptionTransitionFlipFromRight completion:^(BOOL finished) {
        
     }];
