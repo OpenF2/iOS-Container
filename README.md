@@ -1,4 +1,4 @@
-# iOS-Container
+# F2 iOS Container Demo
 
 An iOS app demonstrating [F2](http://www.openf2.org) App integration using UIWebViews, a JavaScript bridge for F2 Context, and a native search control querying the [Markit On Demand Lookup API](http://dev.markitondemand.com/#companylookup).
 
