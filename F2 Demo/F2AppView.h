@@ -15,6 +15,8 @@
 @optional
 //this delegate method will get called when the javascript funcion called sendMessageToNativeMobileApp(_key, _val) is called from the webView
 -(void)F2View:(F2AppView*)appView messageRecieved:(NSString*)message withKey:(NSString*)key;
+-(void)F2View:(F2AppView*)appView appFinishedLoading:(NSError*)error;
+
 @end
 
 @interface F2AppView : UIView <UIWebViewDelegate>
@@ -39,7 +41,7 @@
 
 //The app config as JSON
 //http://docs.openf2.org/sdk/classes/F2.AppConfig.html
--(void)setAppJSONConfig:(NSString *)config;
+-(NSError*)setAppJSONConfig:(NSString*)config;
 
 //call a funtion in the app
 -(NSString*)sendJavaScript:(NSString *)javaScript;

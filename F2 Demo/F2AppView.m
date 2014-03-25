@@ -57,14 +57,11 @@
         NSURLRequest* request = [NSURLRequest requestWithURL:_manifestURL];
         NSURLSession* session = [NSURLSession sharedSession];
         _sessionTask = [session dataTaskWithRequest:request completionHandler:^(NSData* data, NSURLResponse* response, NSError* error) {
-            if (error) {
-                NSLog(@"SESSION REQUEST ERROR");
-            }else{
+            if (!error){
                 NSDictionary* parsedFromJSON = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&error];
-                if (error) {
-                    NSAssert(NO, @"Manifest parsing error");
-                }else{
+                if (!error){
                     _appManifest = parsedFromJSON;
+                    NSLog(@"Manifest:%@",_appManifest);
                     NSArray* apps = _appManifest[@"apps"];
                     NSDictionary* app = [apps firstObject];
                     if (app[@"status"]) {
@@ -88,10 +85,23 @@
                             NSLog(@"%@",htmlContent);
                             [_webView loadHTMLString:htmlContent baseURL:nil];
                         }
-                    }else{
-                        _appHTML=NULL;
+                        else{
+                            NSMutableDictionary *errorDetail = [NSMutableDictionary dictionary];
+                            [errorDetail setValue:[NSString stringWithFormat:@"Manifest Status:%@",_appStatus] forKey:NSLocalizedDescriptionKey];
+                            error = [NSError errorWithDomain:@"F2AppView" code:100 userInfo:errorDetail];
+                        }
+                    }
+                    else{
+                        NSMutableDictionary *errorDetail = [NSMutableDictionary dictionary];
+                        [errorDetail setValue:[NSString stringWithFormat:@"Unrecognised Manifest Format"] forKey:NSLocalizedDescriptionKey];
+                        error = [NSError errorWithDomain:@"F2AppView" code:100 userInfo:errorDetail];
                     }
                 }
+            }
+            if ([self.delegate respondsToSelector:@selector(F2View:appFinishedLoading:)]) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self.delegate F2View:self appFinishedLoading:error];
+                });
             }
         }];
         [_sessionTask resume];
@@ -99,21 +109,28 @@
 }
 
 #pragma mark - Accessors
--(void)setAppJSONConfig:(NSString*)config{
+-(NSError*)setAppJSONConfig:(NSString*)config{
     NSError* error;
     NSArray* parsedFromJSON = [NSJSONSerialization JSONObjectWithData:[config dataUsingEncoding:NSUTF8StringEncoding] options:kNilOptions error:&error];
-    if (error) {
-        NSAssert(NO, @"Config parsing error");
-    }else{
+    if (!error){
         _appConfig = [NSMutableDictionary dictionaryWithDictionary:[parsedFromJSON objectAtIndex:0]];
         NSString* encodedString = [config stringByAddingPercentEscapesUsingEncoding:NSASCIIStringEncoding];
-        _manifestURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@/json?params=%@",@"http://www.openf2.org/Examples/Apps",encodedString]];
+        if (_appConfig[@"manifestUrl"]) {
+            _manifestURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@/json?params=%@",_appConfig[@"manifestUrl"],encodedString]];
+        }
+        else{
+            NSMutableDictionary *errorDetail = [NSMutableDictionary dictionary];
+            [errorDetail setValue:[NSString stringWithFormat:@"missing manifestURL in config"] forKey:NSLocalizedDescriptionKey];
+            error = [NSError errorWithDomain:@"F2AppView" code:100 userInfo:errorDetail];
+        }
+        
         if (_appConfig[@"name"]) {
             _appName = _appConfig[@"name"];
         }else{
             _appName = NULL;
         }
     }
+    return error;
 }
 
 #pragma mark - String Construction

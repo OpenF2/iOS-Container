@@ -168,7 +168,6 @@
     [customViewInfoButton setFrame:CGRectMake(CGRectGetWidth(flipContainer.frame)-32, CGRectGetHeight(flipContainer.frame)-32, 32, 32)];
     [customViewInfoButton addTarget:self action:@selector(infoPressed) forControlEvents:UIControlEventTouchUpInside];
     [_f2CustomView addSubview:customViewInfoButton];
-    
 }
 
 -(void)viewDidAppear:(BOOL)animated{
@@ -316,6 +315,12 @@
         NSLog(@"App Symbol Change");
         [self goForSymbol:message];
         [_searchBar setText:message];
+    }
+}
+
+-(void)F2View:(F2AppView *)appView appFinishedLoading:(NSError *)error{
+    if (error) {
+        [[[UIAlertView alloc]initWithTitle:@"An error occured." message:[NSString stringWithFormat:@"%@",error.localizedDescription]  delegate:NULL cancelButtonTitle:@"Close" otherButtonTitles:NULL]show];
     }
 }
 
