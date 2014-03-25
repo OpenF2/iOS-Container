@@ -120,7 +120,7 @@
         }
         else{
             NSMutableDictionary *errorDetail = [NSMutableDictionary dictionary];
-            [errorDetail setValue:[NSString stringWithFormat:@"missing manifestURL in config"] forKey:NSLocalizedDescriptionKey];
+            [errorDetail setValue:[NSString stringWithFormat:@"missing manifestUrl in config"] forKey:NSLocalizedDescriptionKey];
             error = [NSError errorWithDomain:@"F2AppView" code:100 userInfo:errorDetail];
         }
         

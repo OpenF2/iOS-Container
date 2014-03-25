@@ -233,15 +233,12 @@
     if ([_configurationTextView isFirstResponder]) {
         [_configurationTextView resignFirstResponder];
     }
-    NSError* error;
-    [NSJSONSerialization JSONObjectWithData:[newConfig dataUsingEncoding:NSUTF8StringEncoding] options:kNilOptions error:&error];
+    NSError* error = [_f2CustomView setAppJSONConfig:newConfig];
     if (error) {
-        [[[UIAlertView alloc]initWithTitle:@"Error" message:@"error parsing JSON" delegate:NULL cancelButtonTitle:@"OK" otherButtonTitles:NULL]show];
+        [[[UIAlertView alloc]initWithTitle:@"Error" message:error.localizedDescription delegate:NULL cancelButtonTitle:@"OK" otherButtonTitles:NULL]show];
     }else{
-        [_f2CustomView setAppJSONConfig:newConfig];
         [_f2CustomView loadApp];
         [UIView transitionFromView:_customEditView toView:_f2CustomView duration:1 options:UIViewAnimationOptionTransitionFlipFromLeft completion:^(BOOL finished) {
-            
         }];
     }
 }
