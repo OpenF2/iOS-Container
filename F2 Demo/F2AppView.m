@@ -14,7 +14,6 @@
     NSMutableDictionary*    _appConfig;
     NSDictionary*           _appManifest;
     NSURLSessionDataTask*   _sessionTask;
-    
     NSString*               _appHTML;
     NSString*               _appStatus;
     NSString*               _appID;
@@ -32,35 +31,36 @@
     if (self) {
         _userScalable=NO;
         _scrollable=NO;
+        _shouldOpenLinksExternally=YES;
         _scale=1.0f;
-        _webView.scrollView.scrollEnabled = NO;
+        _eventRegesteringStrings = [NSMutableArray new];
+        
         _webView = [[UIWebView alloc]initWithFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
+        [_webView.scrollView setScrollEnabled:NO];
         [_webView setScalesPageToFit:YES];
         [_webView setAutoresizingMask:UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth];
         [_webView setDelegate:self];
         [_webView setBackgroundColor:[UIColor clearColor]];
         [self addSubview:_webView];
-        _shouldOpenLinksExternally=YES;
-        _eventRegesteringStrings = [NSMutableArray new];
     }
     return self;
 }
 
 -(void)setScrollable:(BOOL)scrollable{
-    _webView.scrollView.scrollEnabled = scrollable;
+    [_webView.scrollView setScrollEnabled:scrollable];
 }
 
 #pragma mark - Public Methods
 -(void)loadApp{
     if (_manifestURL) {
         [_sessionTask cancel];
-        NSURLRequest*   request = [NSURLRequest requestWithURL:_manifestURL];
-        NSURLSession*   session = [NSURLSession sharedSession];
-        _sessionTask = [session dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        NSURLRequest* request = [NSURLRequest requestWithURL:_manifestURL];
+        NSURLSession* session = [NSURLSession sharedSession];
+        _sessionTask = [session dataTaskWithRequest:request completionHandler:^(NSData* data, NSURLResponse* response, NSError* error) {
             if (error) {
                 NSLog(@"SESSION REQUEST ERROR");
             }else{
-                NSDictionary * parsedFromJSON = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&error];
+                NSDictionary* parsedFromJSON = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&error];
                 if (error) {
                     NSAssert(NO, @"Manifest parsing error");
                 }else{
@@ -99,14 +99,14 @@
 }
 
 #pragma mark - Accessors
--(void)setAppJSONConfig:(NSString *)config{
+-(void)setAppJSONConfig:(NSString*)config{
     NSError* error;
     NSArray* parsedFromJSON = [NSJSONSerialization JSONObjectWithData:[config dataUsingEncoding:NSUTF8StringEncoding] options:kNilOptions error:&error];
     if (error) {
         NSAssert(NO, @"Config parsing error");
     }else{
         _appConfig = [NSMutableDictionary dictionaryWithDictionary:[parsedFromJSON objectAtIndex:0]];
-        NSString* encodedString =[config stringByAddingPercentEscapesUsingEncoding:NSASCIIStringEncoding];
+        NSString* encodedString = [config stringByAddingPercentEscapesUsingEncoding:NSASCIIStringEncoding];
         _manifestURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@/json?params=%@",@"http://www.openf2.org/Examples/Apps",encodedString]];
         if (_appConfig[@"name"]) {
             _appName = _appConfig[@"name"];
@@ -118,14 +118,14 @@
 
 #pragma mark - String Construction
 -(NSString*)header{
-    NSMutableString * header = [NSMutableString string];
+    NSMutableString* header = [NSMutableString string];
     [header appendFormat:@"<!DOCTYPE html><html lang='en'><head>%@</head><body>",[self headContent]];
     return header;
     
 }
 
 -(NSString*)headContent{
-    NSMutableString * headContent = [NSMutableString new];
+    NSMutableString* headContent = [NSMutableString new];
     [headContent appendString:@"<meta charset='utf-8'><title>F2 App</title>"];
     [headContent appendFormat:@"<meta name='viewport' content='initial-scale=%0.2f, user-scalable=%@'>",_scale,(_userScalable)?@"YES":@"NO"];
     
@@ -149,14 +149,14 @@
     //this declairs a javascript function called sendToApp in the webview for the js in the view to communicate with us
     //it starts a new load request in an iframe which the webview responds to and calls a delegate method
     NSString* jsFunction = @"  <script type='text/javascript'>                                                              \
-    var sendMessageToNativeMobileApp = function(_key, _val) {                               \
-    var iframe = document.createElement('IFRAME');                                      \
-    iframe.setAttribute(\"src\", _key + \":##sendMessageToNativeMobileApp##\" + _val);  \
-    document.documentElement.appendChild(iframe);                                       \
-    iframe.parentNode.removeChild(iframe);                                              \
-    iframe = null;                                                                      \
-    };                                                                                      \
-    </script>                                                                                   ";
+                                    var sendMessageToNativeMobileApp = function(_key, _val) {                               \
+                                        var iframe = document.createElement('IFRAME');                                      \
+                                        iframe.setAttribute(\"src\", _key + \":##sendMessageToNativeMobileApp##\" + _val);  \
+                                        document.documentElement.appendChild(iframe);                                       \
+                                        iframe.parentNode.removeChild(iframe);                                              \
+                                        iframe = null;                                                                      \
+                                    };                                                                                      \
+                                </script>                                                                                   ";
     return jsFunction;
 }
 
@@ -166,12 +166,12 @@
     NSString* jsonConfig = [self JSONStringFromDictionary:_appConfig];
     NSString* jsFunction = [NSString stringWithFormat:
                             @"  <script type='text/javascript'>             \
-                            var _appConfig = %@ ;                   \
-                            $(function(){                           \
-                            F2.init();                          \
-                            F2.registerApps(_appConfig);        \
-                            });                                     \
-                            </script>",jsonConfig];
+                                    var _appConfig = %@ ;                   \
+                                    $(function(){                           \
+                                        F2.init();                          \
+                                        F2.registerApps(_appConfig);        \
+                                    });                                     \
+                                </script>",jsonConfig];
     return jsFunction;
 }
 
@@ -189,7 +189,7 @@
 }
 
 -(NSString*)body{
-    NSMutableString * bodyContent = [NSMutableString new];
+    NSMutableString* bodyContent = [NSMutableString new];
     
     [bodyContent appendFormat:@"<div class='container'><div class='row'><div class='span12'><section id='iOS-F2-App' class='f2-app %@' style='position:static;'>",_appID];
     
@@ -205,7 +205,7 @@
 }
 
 -(NSString*)footer{
-    NSMutableString * footerContent =[NSMutableString string];
+    NSMutableString* footerContent =[NSMutableString string];
     [footerContent appendString:@"<script src='http://code.jquery.com/jquery-2.1.0.min.js'></script>"];
     [footerContent appendString:@"<script src='http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>"];
     [footerContent appendString:@"<script src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js'></script>"];
@@ -225,18 +225,18 @@
     return footerContent;
 }
 
--(NSString*)sendJavaScript:(NSString *)javaScript{
+-(NSString*)sendJavaScript:(NSString*)javaScript{
     return [_webView stringByEvaluatingJavaScriptFromString:javaScript];
 }
 
 #pragma mark - UIWebViewDelegate methods
-- (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType {
-    NSString *requestString = [[[request URL] absoluteString] stringByReplacingPercentEscapesUsingEncoding: NSUTF8StringEncoding];
-    NSArray *requestArray = [requestString componentsSeparatedByString:@":##sendMessageToNativeMobileApp##"];
+- (BOOL)webView:(UIWebView*)webView shouldStartLoadWithRequest:(NSURLRequest*)request navigationType:(UIWebViewNavigationType)navigationType {
+    NSString* requestString = [[[request URL] absoluteString] stringByReplacingPercentEscapesUsingEncoding: NSUTF8StringEncoding];
+    NSArray* requestArray = [requestString componentsSeparatedByString:@":##sendMessageToNativeMobileApp##"];
     
     if ([requestArray count] > 1){
-        NSString *requestPrefix = [[requestArray objectAtIndex:0] lowercaseString];
-        NSString *requestMssg = ([requestArray count] > 0) ? [requestArray objectAtIndex:1] : @"";
+        NSString* requestPrefix = [[requestArray objectAtIndex:0] lowercaseString];
+        NSString* requestMssg = ([requestArray count] > 0) ? [requestArray objectAtIndex:1] : @"";
         if (_delegate) {
             if ([_delegate respondsToSelector:@selector(F2View:messageRecieved:withKey:)]) {
                 [_delegate F2View:self messageRecieved:requestMssg withKey:requestPrefix];
@@ -252,17 +252,17 @@
 }
 
 #pragma mark - helper methods
-- (NSString *)stringByDecodingURLFormat:(NSString*)string
+- (NSString*)stringByDecodingURLFormat:(NSString*)string
 {
-    NSString *result = [string stringByReplacingOccurrencesOfString:@"+" withString:@" "];
+    NSString* result = [string stringByReplacingOccurrencesOfString:@"+" withString:@" "];
     result = [result stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
     return result;
 }
 
-- (NSString *)JSONStringFromDictionary:(NSDictionary *)dictionary {
-    NSString *jSONResult;
-    NSError *error;
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:dictionary options:0 error:&error];
+- (NSString*)JSONStringFromDictionary:(NSDictionary*)dictionary {
+    NSString* jSONResult;
+    NSError* error;
+    NSData* jsonData = [NSJSONSerialization dataWithJSONObject:dictionary options:0 error:&error];
     if (error) {
         NSLog(@"error generating JSON: %@", error);
     } else {
