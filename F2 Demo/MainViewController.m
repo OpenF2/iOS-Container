@@ -69,7 +69,6 @@
     [_searchDisplayController setSearchResultsDataSource:self];
     [_searchDisplayController setSearchResultsDelegate:self];
     
-    
     //Create the Watchlist F2 View
     _f2WatchlistView = [[F2AppView alloc]initWithFrame:CGRectMake(CGRectGetMaxX(_f2ChartView.frame)+margin, CGRectGetMaxY(_searchBarContainer.frame)+margin, 310, 329)];
     [_f2WatchlistView setDelegate:self];
@@ -106,7 +105,9 @@
     [self.view addSubview:_flipContainer];
     
     
-    _customEditView = [[UIView alloc]initWithFrame:_flipContainer.bounds];
+    CGRect _editViewFrame = _flipContainer.bounds;
+    _editViewFrame.size.height = 352;
+    _customEditView = [[UIView alloc]initWithFrame:_editViewFrame];
     [_customEditView setBackgroundColor:[UIColor colorWithWhite:0 alpha:0.5]];
     
 
