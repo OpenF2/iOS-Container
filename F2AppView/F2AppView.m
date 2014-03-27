@@ -70,11 +70,12 @@
                             //load up data
                             _appHTML = app[@"html"];
                             _appID = app[@"id"];
-                            _appName =
+                            if (app[@"name"]) {
+                                _appName = app[@"name"];
+                            }
+                            
                             _appStatusMessage = app[@"statusMessage"];
-                            
                             _appData = app[@"data"];
-                            
                             _inlineScripts = _appManifest[@"inlineScripts"];
                             _scripts = _appManifest[@"scripts"];
                             _styles = _appManifest[@"styles"];
