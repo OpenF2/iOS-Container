@@ -16,9 +16,9 @@
     NSMutableDictionary*    _appConfig;
     
     /* Values Taken From The Configuration */
-    NSString*   _appName;//the app name
-    NSURL*      _manifestURL;//The url to get the app manifest from
-    NSString*   _appData;//extra data. this data gets passed back to the app on init
+    NSString*   _appName;       //the app name
+    NSURL*      _manifestURL;   //The url to get the app manifest from
+    NSString*   _appData;       //extra data. this data gets passed back to the app on init
     
     //The manifest retrieved from the URL, the manifest contains everything we need to build the html
     NSDictionary*   _appManifest;
@@ -101,6 +101,10 @@
     [_eventRegesteringStrings addObject:[NSString stringWithFormat:@"F2.Events.on(%@, function(data){sendMessageToNativeMobileApp('%@',%@)});",event,key,dataValueGetter]];
 }
 
+-(void)setScrollable:(BOOL)scrollable{
+    [_webView.scrollView setScrollEnabled:scrollable];
+}
+
 -(void)loadApp{
     if (_manifestURL) {
         //cancel the current task if it is running
@@ -135,6 +139,8 @@
                             
                             /*** This is where we build the full html to put into the web view ***/
                             NSString* htmlContent = [NSString stringWithFormat:@"%@%@%@",[self header],[self body],[self footer]];
+                            
+                            //log the generated html
                             NSLog(@"GENERATED %@ HTML:\n%@\n\n",_appName,htmlContent);
                             
                             //Put our newly made html into the webview to load
@@ -169,10 +175,6 @@
 
 -(NSString*)sendJavaScript:(NSString*)javaScript{
     return [_webView stringByEvaluatingJavaScriptFromString:javaScript];
-}
-
--(void)setScrollable:(BOOL)scrollable{
-    [_webView.scrollView setScrollEnabled:scrollable];
 }
 
 #pragma mark - String Construction
@@ -258,6 +260,7 @@
     [_appConfig setValue:@"#iOS-F2-App" forKey:@"root"];
     [_appConfig setValue:_appData forKey:@"data"];
     NSString* jsonConfig = [self JSONStringFromDictionary:_appConfig];
+    //this javascript will register tha app and send it the configuration
     NSString* jsFunction = [NSString stringWithFormat:
                                 @"  <script type='text/javascript'>             \
                                         var _appConfig = %@ ;                   \

@@ -35,49 +35,6 @@
 
 @interface F2AppView : UIView <UIWebViewDelegate>
 
-/** The UIWebViewDelegate for the F2View */
-@property (nonatomic, weak) id<F2AppViewDelegate> delegate;
-
-/** Should links open in view or externally
-    If YES, links in the webview will open in safari, if yes, the links will open in the F2View
-
-    @warning This will only come into effect if done before loadApp
-    @see loadApp
- */
-@property (nonatomic) BOOL shouldOpenLinksExternally;
-
-/** Should the app view be scrollable
-    If YES, the app will be scrollable (Default:NO)
- 
-    @warning This will only come into effect if done before loadApp
-    @see loadApp
- */
-@property (nonatomic) BOOL scrollable;
-
-/** Should the app view be scalable (pinch zoom)
-    If YES, the app will be scalable (Default:NO)
- 
-    @warning This will only come into effect if done before loadApp
-    @see loadApp
- */
-@property (nonatomic) BOOL userScalable;
-
-/** any additional CSS properties
-    aditional CSS to include in the F2 APP (this css gets loaded at the end of all other app Styles)
- 
-    @warning This will only come into effect if done before loadApp
-    @see loadApp
- */
-@property (nonatomic) NSString* additionalCss;
-
-/** The scale of the F2 app
-    change this if you would like the app to be smaller or bigger (default:1.0)
- 
-    @warning This will only come into effect if done before loadApp
-    @see loadApp
- */
-@property (nonatomic) float scale;
-
 /** Use this method to set the configuration of the F2 app.
     for more info on supported configuration properies, see //http://docs.openf2.org/sdk/classes/F2.AppConfig.html
  
@@ -87,12 +44,6 @@
     @param config The configuration as a JSON string
  */
 -(NSError*)setAppJSONConfig:(NSString*)config;
-
-/** Use this method to send any Javascript functions to the app.
-    @param javaScript The javascript to run
-    @return the sting returned after evaluating the javascript
- */
--(NSString*)sendJavaScript:(NSString *)javaScript;
 
 /** Use this method to register any events you would like to be notified for
     set this before loading the app, after registering the app the event will call the deligate method F2View:messageRecieved:withKey: whenever the event is emitted
@@ -110,5 +61,55 @@
 
 /** Call this method when your configuration is complete and you wish to load/reload the f2 app in the view */
 -(void)loadApp;
+
+/** Use this method to send any Javascript functions to the app.
+ @param javaScript The javascript to run
+ @return the sting returned after evaluating the javascript
+ */
+-(NSString*)sendJavaScript:(NSString *)javaScript;
+
+/** The UIWebViewDelegate for the F2View */
+@property (nonatomic, weak) id<F2AppViewDelegate> delegate;
+
+/** Should links open in view or externally
+ If YES, links in the webview will open in safari, if yes, the links will open in the F2View
+ 
+ @warning This will only come into effect if done before loadApp
+ @see loadApp
+ */
+@property (nonatomic) BOOL shouldOpenLinksExternally;
+
+/** Should the app view be scrollable
+ If YES, the app will be scrollable (Default:NO)
+ 
+ @warning This will only come into effect if done before loadApp
+ @see loadApp
+ */
+@property (nonatomic) BOOL scrollable;
+
+/** Should the app view be scalable (pinch zoom)
+ If YES, the app will be scalable (Default:NO)
+ 
+ @warning This will only come into effect if done before loadApp
+ @see loadApp
+ */
+@property (nonatomic) BOOL userScalable;
+
+/** any additional CSS properties
+ aditional CSS to include in the F2 APP (this css gets loaded at the end of all other app Styles)
+ 
+ @warning This will only come into effect if done before loadApp
+ @see loadApp
+ */
+@property (nonatomic) NSString* additionalCss;
+
+/** The scale of the F2 app
+ change this if you would like the app to be smaller or bigger (default:1.0)
+ 
+ @warning This will only come into effect if done before loadApp
+ @see loadApp
+ */
+@property (nonatomic) float scale;
+
 
 @end

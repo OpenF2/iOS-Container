@@ -9,7 +9,6 @@
 #import "MainViewController.h"
 #import "F2AppView.h"
 
-
 #define kNameKey @"Name"
 #define kSymbolKey @"Symbol"
 #define kExhangeKey @"Exchange"
@@ -18,6 +17,8 @@
 #define kEventAppSymbolChange @"appsymbolchange"
 
 @implementation MainViewController{
+    NSString*                   _currentSymbol;
+    
     F2AppView*                  _f2ChartView;
     F2AppView*                  _f2WatchlistView;
     F2AppView*                  _f2QuoteView;
@@ -25,9 +26,7 @@
 
     UIView*                     _customEditView;
     UITextView*                 _configurationTextView;
-    
-    NSString*                   _currentSymbol;
-    UIView*                     _searchBarContainer;
+
     UISearchBar*                _searchBar;
     UISearchDisplayController*  _searchDisplayController;
     NSURLSessionDataTask*       _searchTask;
@@ -42,12 +41,11 @@
     
     float margin = 8;
     _symbolArray = [NSMutableArray new];
-    
-    _searchBarContainer = [UIView new];
-    [_searchBarContainer setFrame:CGRectMake(56, 20, 904, 45)];
-    [_searchBarContainer setBackgroundColor:[UIColor whiteColor]];
-    [_searchBarContainer setClipsToBounds:YES];
-    [self.view addSubview:_searchBarContainer];
+    UIView* searchBarContainer = [UIView new];
+    [searchBarContainer setFrame:CGRectMake(56, 20, 904, 45)];
+    [searchBarContainer setBackgroundColor:[UIColor whiteColor]];
+    [searchBarContainer setClipsToBounds:YES];
+    [self.view addSubview:searchBarContainer];
     
     _searchBar = [UISearchBar new];
     [_searchBar setDelegate:self];
@@ -55,8 +53,8 @@
     [_searchBar setBarTintColor:[UIColor clearColor]];
     [_searchBar setSearchBarStyle:UISearchBarStyleProminent];
     [_searchBar setTintColor:self.view.backgroundColor];
-    [_searchBar setFrame:_searchBarContainer.bounds];
-    [_searchBarContainer addSubview:_searchBar];
+    [_searchBar setFrame:searchBarContainer.bounds];
+    [searchBarContainer addSubview:_searchBar];
     
     _searchDisplayController = [[UISearchDisplayController alloc]initWithSearchBar:_searchBar contentsController:self];
     [_searchDisplayController setDelegate:self];
@@ -66,7 +64,7 @@
     UIButton* refreshButton = [UIButton buttonWithType:UIButtonTypeSystem];
     [refreshButton.titleLabel setFont:[UIFont fontWithName:@"CourierNewPSMT" size:48]];
     [refreshButton setTitle:@"🔄" forState:UIControlStateNormal];
-    [refreshButton setFrame:CGRectMake(CGRectGetMaxX(_searchBarContainer.frame)+8, 24, 48, 48)];
+    [refreshButton setFrame:CGRectMake(CGRectGetMaxX(searchBarContainer.frame)+8, 24, 48, 48)];
     [refreshButton addTarget:self action:@selector(resfresh) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:refreshButton];
     
@@ -77,7 +75,7 @@
     [self.view addSubview:f2Logo];
     
     //Create the Watchlist F2 View
-    _f2WatchlistView = [[F2AppView alloc]initWithFrame:CGRectMake(CGRectGetMaxX(_f2ChartView.frame)+margin, CGRectGetMaxY(_searchBarContainer.frame)+margin, 310, 336)];
+    _f2WatchlistView = [[F2AppView alloc]initWithFrame:CGRectMake(CGRectGetMaxX(_f2ChartView.frame)+margin, CGRectGetMaxY(searchBarContainer.frame)+margin, 310, 336)];
     [_f2WatchlistView setDelegate:self];
     [_f2WatchlistView setScrollable:YES];
     [_f2WatchlistView setScale:0.9f];
@@ -87,7 +85,7 @@
     [self.view addSubview:_f2WatchlistView];
     
     //Create the Quote F2 View
-    _f2QuoteView = [[F2AppView alloc]initWithFrame:CGRectMake(CGRectGetMaxX(_f2WatchlistView.frame)+margin, CGRectGetMaxY(_searchBarContainer.frame)+margin, 350, 336)];
+    _f2QuoteView = [[F2AppView alloc]initWithFrame:CGRectMake(CGRectGetMaxX(_f2WatchlistView.frame)+margin, CGRectGetMaxY(searchBarContainer.frame)+margin, 350, 336)];
     [_f2QuoteView setDelegate:self];
     [_f2QuoteView setScrollable:NO];
     [_f2QuoteView setScale:0.9f];
@@ -106,9 +104,17 @@
     [self.view addSubview:_f2ChartView];
     
     //Create Flip Containter
-    UIView* flipContainer = [[UIView alloc]initWithFrame:CGRectMake(CGRectGetMaxX(_f2QuoteView.frame)+margin, CGRectGetMaxY(_searchBarContainer.frame)+margin, 332, 687)];
+    UIView* flipContainer = [[UIView alloc]initWithFrame:CGRectMake(CGRectGetMaxX(_f2QuoteView.frame)+margin, CGRectGetMaxY(searchBarContainer.frame)+margin, 332, 687)];
     [self.view addSubview:flipContainer];
     
+    //Create the Custom F2 View
+    _f2CustomView = [[F2AppView alloc]initWithFrame:flipContainer.bounds];
+    [_f2CustomView setDelegate:self];
+    [_f2CustomView setScrollable:YES];
+    [_f2CustomView setScale:0.9f];
+    [_f2CustomView setAppJSONConfig:@"[{\"appId\": \"com_openf2_examples_csharp_stocknews\",\n\"manifestUrl\": \"http://www.openf2.org/Examples/Apps\",\n\"name\": \"Stock News\"\n}]"];
+    [_f2CustomView loadApp];
+    [flipContainer addSubview:_f2CustomView];
     
     CGRect _editViewFrame = flipContainer.bounds;
     _editViewFrame.size.height = 336;
@@ -150,15 +156,6 @@
     [customViewDoneButton setFrame:CGRectMake(CGRectGetWidth(_customEditView.frame)/4, CGRectGetMaxY(customViewStockNewsButton.frame)+margin, CGRectGetWidth(_customEditView.frame)/2, 40)];
     [customViewDoneButton addTarget:self action:@selector(donePressed) forControlEvents:UIControlEventTouchUpInside];
     [_customEditView addSubview:customViewDoneButton];
-    
-    //Create the Custom F2 View
-    _f2CustomView = [[F2AppView alloc]initWithFrame:flipContainer.bounds];
-    [_f2CustomView setDelegate:self];
-    [_f2CustomView setScrollable:YES];
-    [_f2CustomView setScale:0.9f];
-    [_f2CustomView setAppJSONConfig:@"[{\"appId\": \"com_openf2_examples_csharp_stocknews\",\n\"manifestUrl\": \"http://www.openf2.org/Examples/Apps\",\n\"name\": \"Stock News\"\n}]"];
-    [_f2CustomView loadApp];
-    [flipContainer addSubview:_f2CustomView];
     
      UIButton* customViewInfoButton = [UIButton buttonWithType:UIButtonTypeInfoDark];
     [customViewInfoButton setFrame:CGRectMake(CGRectGetWidth(flipContainer.frame)-32, CGRectGetHeight(flipContainer.frame)-32, 32, 32)];
