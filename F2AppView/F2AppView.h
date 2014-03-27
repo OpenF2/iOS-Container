@@ -10,11 +10,25 @@
 
 @class F2AppView;
 
+/*
+ * F2AppViewDelegate specifies the methods that a F2App may respond to.
+ */
 @protocol F2AppViewDelegate<NSObject>
 
 @optional
-//this delegate method will get called when the javascript funcion called sendMessageToNativeMobileApp(_key, _val) is called from the webView
+
+/** Use this delegate method will get called when the javascript funcion called sendMessageToNativeMobileApp(_key, _val) is called from the webView.
+ @param appView F2AppView
+ @param message the message recieved
+ @param key the key used when registering the event
+ @see registerEvent:key:dataValueGetter:
+ */
 -(void)F2View:(F2AppView*)appView messageRecieved:(NSString*)message withKey:(NSString*)key;
+
+/** Use this delegate method to get notified when the app is finished generating the app. (The javascript in the app its self might still be loading or running)
+ @param appView F2AppView
+ @param error an error if occured or NULL if success
+ */
 -(void)F2View:(F2AppView*)appView appFinishedLoading:(NSError*)error;
 
 @end
