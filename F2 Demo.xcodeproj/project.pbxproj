@@ -113,14 +113,13 @@
 		7E2CC3F818E1DA8F00697868 /* F2 Demo */ = {
 			isa = PBXGroup;
 			children = (
+				7E5709C718E496810028E67A /* F2AppView */,
 				7E2CC40118E1DA8F00697868 /* AppDelegate.h */,
 				7E2CC40218E1DA8F00697868 /* AppDelegate.m */,
 				7E2CC46418E1DCD200697868 /* MainViewController.h */,
 				7E2CC46518E1DCD200697868 /* MainViewController.m */,
 				7E2CC40418E1DA8F00697868 /* Images.xcassets */,
 				7E2CC3F918E1DA8F00697868 /* Supporting Files */,
-				7E2CC46718E1DD2D00697868 /* F2AppView.h */,
-				7E2CC46818E1DD2D00697868 /* F2AppView.m */,
 			);
 			path = "F2 Demo";
 			sourceTree = "<group>";
@@ -152,6 +151,15 @@
 				7E2CC41418E1DA9000697868 /* InfoPlist.strings */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		7E5709C718E496810028E67A /* F2AppView */ = {
+			isa = PBXGroup;
+			children = (
+				7E2CC46718E1DD2D00697868 /* F2AppView.h */,
+				7E2CC46818E1DD2D00697868 /* F2AppView.m */,
+			);
+			name = F2AppView;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

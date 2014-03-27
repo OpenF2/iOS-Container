@@ -162,7 +162,7 @@
 }
 
 -(NSString*)jSMessageSend{
-    //this declairs a javascript function called sendToApp in the webview for the js in the view to communicate with us
+    //this declairs a javascript function called sendMessageToNativeMobileApp in the webview for the js in the view to communicate with us
     //it starts a new load request in an iframe which the webview responds to and calls a delegate method
     NSString* jsFunction = @"  <script type='text/javascript'>                                                              \
                                     var sendMessageToNativeMobileApp = function(_key, _val) {                               \
