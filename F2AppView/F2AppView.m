@@ -61,7 +61,6 @@
                 NSDictionary* parsedFromJSON = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&error];
                 if (!error){
                     _appManifest = parsedFromJSON;
-                    NSLog(@"Manifest:%@",_appManifest);
                     NSArray* apps = _appManifest[@"apps"];
                     NSDictionary* app = [apps firstObject];
                     if (app[@"status"]) {
@@ -74,15 +73,14 @@
                             _appName =
                             _appStatusMessage = app[@"statusMessage"];
                             
-                            //turn the "data" dictionary back into JSON string - though I don't use the data at the moment anyways
-                            _appData = [self JSONStringFromDictionary:app[@"data"]];
+                            _appData = app[@"data"];
                             
                             _inlineScripts = _appManifest[@"inlineScripts"];
                             _scripts = _appManifest[@"scripts"];
                             _styles = _appManifest[@"styles"];
                             
                             NSString* htmlContent = [NSString stringWithFormat:@"%@%@%@",[self header],[self body],[self footer]];
-                            NSLog(@"%@",htmlContent);
+                            NSLog(@"GENERATED %@ HTML:\n%@\n\n",_appName,htmlContent);
                             [_webView loadHTMLString:htmlContent baseURL:nil];
                         }
                         else{
@@ -180,6 +178,7 @@
 -(NSString*)jSRegisterApp{
     //add "root" to config and rebuild JSON
     [_appConfig setValue:@"#iOS-F2-App" forKey:@"root"];
+    [_appConfig setValue:_appData forKey:@"data"];
     NSString* jsonConfig = [self JSONStringFromDictionary:_appConfig];
     NSString* jsFunction = [NSString stringWithFormat:
                             @"  <script type='text/javascript'>             \
@@ -280,11 +279,8 @@
     NSString* jSONResult;
     NSError* error;
     NSData* jsonData = [NSJSONSerialization dataWithJSONObject:dictionary options:0 error:&error];
-    if (error) {
-        NSLog(@"error generating JSON: %@", error);
-    } else {
-        jSONResult = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-    }
+    NSAssert(!error, @"error generating JSON: %@", error);
+    jSONResult = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     return jSONResult;
 }
 @end

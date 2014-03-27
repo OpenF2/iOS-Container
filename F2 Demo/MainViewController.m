@@ -15,7 +15,6 @@
 #define kExhangeKey @"Exchange"
 
 //these must be lower case, and no special characters
-#define kEventContainerSymbolChange @"containercymbolchange"
 #define kEventAppSymbolChange @"appsymbolchange"
 
 @implementation MainViewController{
@@ -93,7 +92,6 @@
     [_f2QuoteView setScrollable:NO];
     [_f2QuoteView setScale:0.9f];
     [_f2QuoteView setAppJSONConfig:@"[{\"appId\": \"com_openf2_examples_javascript_quote\",\"manifestUrl\": \"http://www.openf2.org/Examples/Apps\",\"name\": \"Quote\"}]"];
-    [_f2QuoteView registerEvent:@"F2.Constants.Events.CONTAINER_SYMBOL_CHANGE" key:kEventContainerSymbolChange dataValueGetter:@"data.symbol"];
     [_f2QuoteView loadApp];
     [self.view addSubview:_f2QuoteView];
     
@@ -104,7 +102,6 @@
     [_f2ChartView setScale:0.8f];
     [_f2ChartView setAdditionalCss:@"h2 {font-size:23px}"];
     [_f2ChartView setAppJSONConfig:@"[{\"appId\": \"com_openf2_examples_csharp_chart\",\"manifestUrl\": \"http://www.openf2.org/Examples/Apps\",\"name\": \"One Year Price Movement\"}]"];
-    [_f2ChartView registerEvent:@"F2.Constants.Events.CONTAINER_SYMBOL_CHANGE" key:kEventContainerSymbolChange dataValueGetter:@"data.symbol"];
     [_f2ChartView loadApp];
     [self.view addSubview:_f2ChartView];
     
@@ -160,7 +157,6 @@
     [_f2CustomView setScrollable:YES];
     [_f2CustomView setScale:0.9f];
     [_f2CustomView setAppJSONConfig:@"[{\"appId\": \"com_openf2_examples_csharp_stocknews\",\n\"manifestUrl\": \"http://www.openf2.org/Examples/Apps\",\n\"name\": \"Stock News\"\n}]"];
-    [_f2CustomView registerEvent:@"F2.Constants.Events.CONTAINER_SYMBOL_CHANGE" key:kEventContainerSymbolChange dataValueGetter:@"data.symbol"];
     [_f2CustomView loadApp];
     [flipContainer addSubview:_f2CustomView];
     
@@ -306,10 +302,7 @@
 
 #pragma mark F2AppViewDelegate methods
 -(void)F2View:(F2AppView*)appView messageRecieved:(NSString*)message withKey:(NSString*)key{
-    if ([key isEqualToString:kEventContainerSymbolChange]) {
-        NSLog(@"Container Symbol Change");
-    }else if ([key isEqualToString:kEventAppSymbolChange]){
-        NSLog(@"App Symbol Change");
+    if ([key isEqualToString:kEventAppSymbolChange]){
         [self goForSymbol:message];
         [_searchBar setText:message];
     }

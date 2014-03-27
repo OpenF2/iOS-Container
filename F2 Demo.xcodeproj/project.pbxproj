@@ -52,8 +52,8 @@
 		7E2CC41718E1DA9000697868 /* F2_DemoTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = F2_DemoTests.m; sourceTree = "<group>"; };
 		7E2CC46418E1DCD200697868 /* MainViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainViewController.h; sourceTree = "<group>"; };
 		7E2CC46518E1DCD200697868 /* MainViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainViewController.m; sourceTree = "<group>"; };
-		7E2CC46718E1DD2D00697868 /* F2AppView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = F2AppView.h; sourceTree = "<group>"; };
-		7E2CC46818E1DD2D00697868 /* F2AppView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = F2AppView.m; sourceTree = "<group>"; };
+		7E2CC46718E1DD2D00697868 /* F2AppView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = F2AppView.h; path = ../F2AppView/F2AppView.h; sourceTree = "<group>"; };
+		7E2CC46818E1DD2D00697868 /* F2AppView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = F2AppView.m; path = ../F2AppView/F2AppView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
