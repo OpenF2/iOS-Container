@@ -17,7 +17,7 @@
 
 @optional
 
-/** Use this delegate method will get called when the javascript funcion called sendMessageToNativeMobileApp(_key, _val) is called from the webView.
+/** this delegate method will get called when the javascript funcion called sendMessageToNativeMobileApp(_key, _val) is called from the webView.
  @param appView F2AppView
  @param message the message recieved
  @param key the key used when registering the event
