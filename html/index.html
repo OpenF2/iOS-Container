@@ -40,6 +40,50 @@
 <div class="title">F2View Documentation</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>An F2AppView is designed to be a simple way to incorporate an an F2 App within your native iOS app. It works by getting the configuration you supply it and requesting the app manifest fromt the web. It then uses the manifest and configuration to generat an html container with the F2 app and appends additional Javascript in order for the app to communicate to the delegate of the F2AppView</p>
+
+<h1>Adding an F2AppView to your app</h1>
+<p>In order to present an F2 app view, follow these steps:</p>
+
+<h2>1. Create an instance of the F2AppView and set its frame.</h2>
+    <p>example:<br/>
+  <code>myF2AppView = [[F2AppView alloc]initWithFrame:myAppFrame];</code></p>
+
+<h2>2. Set its Configuration using setAppJSONConfig:</h2>
+  <p>The configuration is in JSON format and must contain at least the manifestUrl and the app ID.
+  a configuration should look something like this:</p>
+  <p><code>[{<br/>
+    "appId": "com_f2_examples_javascript_watchlist",<br/>
+    "manifestUrl": "http://www.openf2.org/Examples/Apps",<br/>
+    "name": "Watchlist"<br/>
+  }]</code></p>
+
+  more info on configuration objects <a href="http://docs.openf2.org/sdk/classes/F2.AppConfig.html">http://docs.openf2.org/sdk/classes/F2.AppConfig.html</a> 
+
+<h2>3. Configure the view using any of the optional properties</h2>
+<ul>
+<li><a href="interface_f2_app_view.html#a6aee25dacbbcb5c4b2de373992f488c3">delegate</a></li>
+<li><a href="interface_f2_app_view.html#a9fa261a540b2342d43ea84ccee4da960">shouldOpenLinksExternally</a></li>
+<li><a href="interface_f2_app_view.html#a3deee291f4728eee637efd04491c8a53">scrollable</a></li>
+<li><a href="interface_f2_app_view.html#af8a4befc498a4ac4f719dc78078e2c55">userScalable</a></li>
+<li><a href="interface_f2_app_view.html#a41f0f67ad5614c5daf4b60f10abb3d0c">additionalCss</a></li>
+<li><a href="interface_f2_app_view.html#a937d6709e56e70ce53295d74cc7adfba">scale</a></li>
+</ul>
+
+<h2>4. Register any events you want to listen to.</h2>
+  <p>When using <a href="interface_f2_app_view.html#a3de7cfe6cfe560a3308e9c803c85db2d">registerEvent:key:dataValueGetter:</a> you set up a way for the app to access its delegate and call its <a href="protocol_f2_app_view_delegate-p.html#ad29ff801b22ed2b59384bfd6eba790f6">F2View:messageRecieved:withKey:</a> method</p>
+  <p>More info on events <a href="http://docs.openf2.org/sdk/classes/F2.Constants.Events.html">http://docs.openf2.org/sdk/classes/F2.Constants.Events.html</a></p>
+  <p>example:</p>
+  <p><code>[myF2AppView registerEvent:@"F2.Constants.Events.APP_SYMBOL_CHANGE" key:@“symbolchange” dataValueGetter:@"data.symbol"];</code></p>
+
+<h2>5. Load the app:</h2>
+  <p>this should be done only after all the previous configuration is completed</p>
+  <p><code>loadApp:</code></p>
+
+<h1> Sending Javascript commands:</h1>
+  <p><code>sendJavaScript:</code></p>
+
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/>

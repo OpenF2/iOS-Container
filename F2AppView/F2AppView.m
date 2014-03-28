@@ -299,8 +299,8 @@
 }
 
 #pragma mark - UIWebViewDelegate methods
-//we use this delegate method to catch any instances of the sendMessageToNativeMobileApp javascript method and pass the data to our delegate
 - (BOOL)webView:(UIWebView*)webView shouldStartLoadWithRequest:(NSURLRequest*)request navigationType:(UIWebViewNavigationType)navigationType{
+    //we use this delegate method to catch any instances of the sendMessageToNativeMobileApp javascript method and pass the data to our delegate
     NSString* requestString = [[[request URL] absoluteString] stringByReplacingPercentEscapesUsingEncoding: NSUTF8StringEncoding];
     NSArray* requestArray = [requestString componentsSeparatedByString:@":##sendMessageToNativeMobileApp##"];
     //if the array is bigger than 0, then we know that it wasn't an actual request, but from the javascript function we made called sendMessageToNativeMobileApp
