@@ -2,6 +2,8 @@
 
 An iOS app demonstrating [F2](http://www.openf2.org) App integration using UIWebViews, a JavaScript bridge for F2 Context, and a native search control querying the [Markit On Demand Lookup API](http://dev.markitondemand.com/#companylookup).
 
+Read about the release of this demo app [on the F2 blog](http://blog.openf2.org/2014/04/more-open-source-our-new-demo-ios.html).
+
 ![image](http://openf2.github.io/iOS-Container/images/ios-container.png)
 
 # Copyright and License
