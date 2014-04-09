@@ -49,7 +49,7 @@
     
     _searchBar = [UISearchBar new];
     [_searchBar setDelegate:self];
-    [_searchBar setPlaceholder:@"Search a Symbol"];
+    [_searchBar setPlaceholder:@"Search for Company"];
     [_searchBar setBarTintColor:[UIColor clearColor]];
     [_searchBar setSearchBarStyle:UISearchBarStyleProminent];
     [_searchBar setTintColor:self.view.backgroundColor];
