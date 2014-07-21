@@ -232,7 +232,7 @@
     [footerContent appendString:@"<script src='http://code.jquery.com/jquery-2.1.0.min.js'></script>"];
     [footerContent appendString:@"<script src='http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>"];
     [footerContent appendString:@"<script src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js'></script>"];
-    [footerContent appendString:@"<script type='text/javascript' src='http://cdnjs.cloudflare.com/ajax/libs/F2/1.3.2/f2.min.js'></script>"];
+    [footerContent appendString:@"<script type='text/javascript' src='http://cdnjs.cloudflare.com/ajax/libs/F2/1.3.3/f2.min.js'></script>"];
     
     //inline scriptURLs from the manifest
     if (_scripts) {
