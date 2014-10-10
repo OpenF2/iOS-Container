@@ -37,22 +37,22 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    [self.view setBackgroundColor:[UIColor colorWithRed:29.0f/255 green:104.0f/255 blue:153.0f/255 alpha:1]];
+    [self.view setBackgroundColor:[UIColor colorWithRed:0.145 green:0.545 blue:0.816 alpha:1] /*#258bd0*/];
     
     float margin = 8;
     _symbolArray = [NSMutableArray new];
     UIView* searchBarContainer = [UIView new];
     [searchBarContainer setFrame:CGRectMake(56, 20, 904, 45)];
-    [searchBarContainer setBackgroundColor:[UIColor whiteColor]];
+    [searchBarContainer setBackgroundColor:[UIColor colorWithRed:0.145 green:0.545 blue:0.816 alpha:1] /*#258bd0*/];
     [searchBarContainer setClipsToBounds:YES];
     [self.view addSubview:searchBarContainer];
     
     _searchBar = [UISearchBar new];
     [_searchBar setDelegate:self];
     [_searchBar setPlaceholder:@"Search for Company"];
-    [_searchBar setBarTintColor:[UIColor clearColor]];
+    [_searchBar setBarTintColor:[UIColor colorWithRed:0.145 green:0.545 blue:0.816 alpha:1] /*#258bd0*/];
     [_searchBar setSearchBarStyle:UISearchBarStyleProminent];
-    [_searchBar setTintColor:self.view.backgroundColor];
+    [_searchBar setTintColor:[UIColor colorWithRed:0.145 green:0.545 blue:0.816 alpha:1] /*#258bd0*/];
     [_searchBar setFrame:searchBarContainer.bounds];
     [searchBarContainer addSubview:_searchBar];
     
@@ -89,7 +89,7 @@
     [_f2QuoteView setDelegate:self];
     [_f2QuoteView setScrollable:NO];
     [_f2QuoteView setScale:0.9f];
-    [_f2QuoteView setAppJSONConfig:@"[{\"appId\": \"com_openf2_examples_javascript_quote\",\"manifestUrl\": \"http://www.openf2.org/Examples/Apps\",\"name\": \"Quote\"}]"];
+    [_f2QuoteView setAppJSONConfig:@"[{\"appId\": \"com_openf2_examples_javascript_quote\",\"manifestUrl\": \"http://www.openf2.org/Examples/Apps\",\"name\": \"Quote\", \"context\":{\"symbol\":\"MSFT\"}}]"];
     [_f2QuoteView loadApp];
     [self.view addSubview:_f2QuoteView];
     
