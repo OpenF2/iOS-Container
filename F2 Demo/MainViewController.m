@@ -39,10 +39,28 @@
     [super viewDidLoad];
     [self.view setBackgroundColor:[UIColor colorWithRed:0.145 green:0.545 blue:0.816 alpha:1] /*#258bd0*/];
     
-    float margin = 8;
     _symbolArray = [NSMutableArray new];
+    
+    float margin = 4;
+    UIButton* f2Logo = [UIButton buttonWithType:UIButtonTypeCustom];
+    [f2Logo addTarget:self action:@selector(f2ButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+    [f2Logo setImage:[UIImage imageNamed:@"Icon-40"] forState:UIControlStateNormal];
+    [f2Logo setFrame:CGRectMake(margin, 20, 40, 40)];
+    [self.view addSubview:f2Logo];
+    
+    CGFloat buttonWidth = CGRectGetHeight(f2Logo.frame);
+    UIButton* refreshButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    [refreshButton.titleLabel setFont:[UIFont fontWithName:@"CourierNewPSMT" size:buttonWidth]];
+    [refreshButton setTitle:@"🔄" forState:UIControlStateNormal];
+    [refreshButton setFrame:CGRectMake(CGRectGetMaxX(self.view.bounds)-buttonWidth-margin, 0, buttonWidth, CGRectGetHeight(f2Logo.frame))];
+    [refreshButton sizeToFit];
+    [refreshButton setCenter:CGPointMake(refreshButton.center.x, f2Logo.center.y + 2)];
+    [refreshButton addTarget:self action:@selector(resfresh) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:refreshButton];
+    
     UIView* searchBarContainer = [UIView new];
-    [searchBarContainer setFrame:CGRectMake(56, 20, 904, 45)];
+    CGFloat searchX = CGRectGetMaxX(f2Logo.frame)+margin;
+    [searchBarContainer setFrame:CGRectMake(searchX, 20, CGRectGetMinX(refreshButton.frame)-margin-searchX, CGRectGetHeight(f2Logo.frame))];
     [searchBarContainer setBackgroundColor:[UIColor colorWithRed:0.145 green:0.545 blue:0.816 alpha:1] /*#258bd0*/];
     [searchBarContainer setClipsToBounds:YES];
     [self.view addSubview:searchBarContainer];
@@ -60,22 +78,16 @@
     [_searchDisplayController setDelegate:self];
     [_searchDisplayController setSearchResultsDataSource:self];
     [_searchDisplayController setSearchResultsDelegate:self];
-    
-    UIButton* refreshButton = [UIButton buttonWithType:UIButtonTypeSystem];
-    [refreshButton.titleLabel setFont:[UIFont fontWithName:@"CourierNewPSMT" size:48]];
-    [refreshButton setTitle:@"🔄" forState:UIControlStateNormal];
-    [refreshButton setFrame:CGRectMake(CGRectGetMaxX(searchBarContainer.frame)+8, 24, 48, 48)];
-    [refreshButton addTarget:self action:@selector(resfresh) forControlEvents:UIControlEventTouchUpInside];
-    [self.view addSubview:refreshButton];
-    
-    UIButton* f2Logo = [UIButton buttonWithType:UIButtonTypeCustom];
-    [f2Logo addTarget:self action:@selector(f2ButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-    [f2Logo setImage:[UIImage imageNamed:@"Icon-40"] forState:UIControlStateNormal];
-    [f2Logo setFrame:CGRectMake(margin, 22, 40, 40)];
-    [self.view addSubview:f2Logo];
+
+    CGFloat viewHeight = self.view.bounds.size.height;
+    CGFloat logoBottomY = CGRectGetMaxY(f2Logo.frame);
+    CGFloat fullHeight = viewHeight - logoBottomY - (2 * margin);
+    CGFloat halfHeight = (fullHeight - margin) / 2.;
+    halfHeight = floorf(halfHeight);
+    fullHeight += 1;
     
     //Create the Watchlist F2 View
-    _f2WatchlistView = [[F2AppView alloc]initWithFrame:CGRectMake(CGRectGetMaxX(_f2ChartView.frame)+margin, CGRectGetMaxY(searchBarContainer.frame)+margin, 310, 336)];
+    _f2WatchlistView = [[F2AppView alloc]initWithFrame:CGRectMake(margin, CGRectGetMaxY(f2Logo.frame)+margin, 310, halfHeight)];
     [_f2WatchlistView setDelegate:self];
     [_f2WatchlistView setScrollable:YES];
     [_f2WatchlistView setScale:0.9f];
@@ -85,7 +97,7 @@
     [self.view addSubview:_f2WatchlistView];
     
     //Create the Quote F2 View
-    _f2QuoteView = [[F2AppView alloc]initWithFrame:CGRectMake(CGRectGetMaxX(_f2WatchlistView.frame)+margin, CGRectGetMaxY(searchBarContainer.frame)+margin, 350, 336)];
+    _f2QuoteView = [[F2AppView alloc]initWithFrame:CGRectMake(CGRectGetMaxX(_f2WatchlistView.frame)+margin, CGRectGetMaxY(f2Logo.frame)+margin, 350, halfHeight)];
     [_f2QuoteView setDelegate:self];
     [_f2QuoteView setScrollable:NO];
     [_f2QuoteView setScale:0.9f];
@@ -94,7 +106,7 @@
     [self.view addSubview:_f2QuoteView];
     
     //Create the Chart F2 View
-    _f2ChartView = [[F2AppView alloc]initWithFrame:CGRectMake(margin, CGRectGetMaxY(_f2QuoteView.frame)+margin, CGRectGetMaxX(_f2QuoteView.frame)-margin, 343)];
+    _f2ChartView = [[F2AppView alloc]initWithFrame:CGRectMake(margin, CGRectGetMaxY(_f2QuoteView.frame)+margin, CGRectGetMaxX(_f2QuoteView.frame)-margin, halfHeight)];
     [_f2ChartView setDelegate:self];
     [_f2ChartView setScrollable:NO];
     [_f2ChartView setScale:0.8f];
@@ -104,7 +116,8 @@
     [self.view addSubview:_f2ChartView];
     
     //Create Flip Containter
-    UIView* flipContainer = [[UIView alloc]initWithFrame:CGRectMake(CGRectGetMaxX(_f2QuoteView.frame)+margin, CGRectGetMaxY(searchBarContainer.frame)+margin, 332, 687)];
+    CGFloat flipX = CGRectGetMaxX(_f2QuoteView.frame)+margin;
+    UIView* flipContainer = [[UIView alloc]initWithFrame:CGRectMake(flipX, CGRectGetMaxY(searchBarContainer.frame)+margin, self.view.bounds.size.width-flipX-margin, fullHeight)];
     [self.view addSubview:flipContainer];
     
     //Create the Custom F2 View
