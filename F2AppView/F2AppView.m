@@ -183,7 +183,7 @@
     NSMutableString* headContent = [NSMutableString new];
     [headContent appendString:@"<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'><title>F2 App</title>"];
     [headContent appendFormat:@"<meta name='viewport' content='initial-scale=%0.2f, user-scalable=%@'>",_scale,(_userScalable)?@"YES":@"NO"];
-    [headContent appendString:@"<link href='http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css' rel='stylesheet'>"];
+    [headContent appendString:@"<link href='http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css' rel='stylesheet'>"];
     [headContent appendString:@"<link rel='stylesheet' href='//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css' />"];
     
     //add the styles from the manifest
@@ -206,13 +206,13 @@
 -(NSString*)body{
     NSMutableString* bodyContent = [NSMutableString new];
     //note: we open <body> here, but the footer will be the one closing it
-    [bodyContent appendFormat:@"<body><div class='container'><div class='row'><div class='span12'><section id='iOS-F2-App' class='f2-app %@' style='position:static;'>",_appID];
+    [bodyContent appendFormat:@"<body><div class='container'><div class='row'><div class='col-md-12'><section id='iOS-F2-App' class='f2-app %@' style='position:static;'>",_appID];
     
     if (_appName) {
-        [bodyContent appendFormat:@"<header class='clearfix'><h2 class='pull-left f2-app-title'>%@</h2></header>",_appName];
+        [bodyContent appendFormat:@"<header class='clearfix'><h3 class='f2-app-title'>%@</h3></header>",_appName];
     }else{
         //we'll make the <header> anyways, the app might populate it
-        [bodyContent appendString:@"<header class='clearfix'><h2 class='pull-left f2-app-title'></h2></header>"];
+        [bodyContent appendString:@"<header class='clearfix'><h3 class='f2-app-title'></h3></header>"];
     }
     
     /*** here we put in the html that we get from the manifest ***/
@@ -229,10 +229,10 @@
     NSMutableString* footerContent =[NSMutableString string];
     
     //common scripts
-    [footerContent appendString:@"<script src='http://code.jquery.com/jquery-2.1.0.min.js'></script>"];
-    [footerContent appendString:@"<script src='http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'></script>"];
+    [footerContent appendString:@"<script src='http://code.jquery.com/jquery-2.1.1.min.js'></script>"];
+    [footerContent appendString:@"<script src='http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js'></script>"];
     [footerContent appendString:@"<script src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js'></script>"];
-    [footerContent appendString:@"<script type='text/javascript' src='http://cdnjs.cloudflare.com/ajax/libs/F2/1.3.3/f2.min.js'></script>"];
+    [footerContent appendString:@"<script type='text/javascript' src='https://raw.githubusercontent.com/OpenF2/F2/1.4-wip/sdk/f2.min.js'></script>"];
     
     //inline scriptURLs from the manifest
     if (_scripts) {
@@ -262,12 +262,12 @@
     NSString* jsonConfig = [self JSONStringFromDictionary:_appConfig];
     //this javascript will register tha app and send it the configuration
     NSString* jsFunction = [NSString stringWithFormat:
-                                @"  <script type='text/javascript'>             \
-                                        var _appConfig = %@ ;                   \
-                                        $(function(){                           \
-                                        F2.init();                          \
-                                        F2.registerApps(_appConfig);        \
-                                        });                                     \
+                                @"  <script type='text/javascript'>\
+                                        var _appConfig = %@ ;\
+                                        $(function(){\
+                                        F2.init();\
+                                        F2.registerApps(_appConfig);\
+                                        });\
                                     </script>",jsonConfig];
     return jsFunction;
 }

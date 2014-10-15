@@ -4,6 +4,10 @@ An iOS app demonstrating [F2](http://www.openf2.org) App integration using UIWeb
 
 Read about the release of this demo app [on the F2 blog](http://blog.openf2.org/2014/04/more-open-source-our-new-demo-ios.html).
 
+## Recently Updated!
+
+This app was recently updated (October 15, 2014) to include iOS 8 compatibility and Bootstrap 3 support.
+
 ![image](http://openf2.github.io/iOS-Container/images/ios-container.png)
 
 # Copyright and License
