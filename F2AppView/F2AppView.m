@@ -232,7 +232,7 @@
     [footerContent appendString:@"<script src='http://code.jquery.com/jquery-2.1.1.min.js'></script>"];
     [footerContent appendString:@"<script src='http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js'></script>"];
     [footerContent appendString:@"<script src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js'></script>"];
-    [footerContent appendString:@"<script type='text/javascript' src='https://raw.githubusercontent.com/OpenF2/F2/1.4-wip/sdk/f2.min.js'></script>"];
+    [footerContent appendString:@"<script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/F2/1.4.0/f2.min.js'></script>"];
     
     //inline scriptURLs from the manifest
     if (_scripts) {
