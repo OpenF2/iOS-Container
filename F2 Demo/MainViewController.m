@@ -3,9 +3,11 @@
 //  F2 Demo
 //
 //  Created by Nathan Johnson on 1/28/14.
+//  Updated by Mark Manes on 1/26/16
 //  Copyright (c) 2014 Markit. All rights reserved.
 //
 
+#import <UIKit/UIKit.h>
 #import "MainViewController.h"
 #import "F2AppView.h"
 
@@ -16,30 +18,39 @@
 //these must be lower case, and no special characters
 #define kEventAppSymbolChange @"appsymbolchange"
 
-@implementation MainViewController{
-    NSString*                   _currentSymbol;
-    
-    F2AppView*                  _f2ChartView;
-    F2AppView*                  _f2WatchlistView;
-    F2AppView*                  _f2QuoteView;
-    F2AppView*                  _f2CustomView;
+@interface MainViewController()  <UISearchBarDelegate,NSURLConnectionDelegate, UISearchControllerDelegate,
+                                    UISearchDisplayDelegate,UITableViewDataSource,UITableViewDelegate,F2AppViewDelegate>
 
-    UIView*                     _customEditView;
-    UITextView*                 _configurationTextView;
+// Let's use properties and get rid of the iVars
+@property (nonatomic, strong) NSString *currentSymbol;
+@property (nonatomic, strong) F2AppView *f2ChartView;
+@property (nonatomic, strong) F2AppView *f2WatchListView;
+@property (nonatomic, strong) F2AppView *f2QuoteView;
+@property (nonatomic, strong) F2AppView *f2CustomView;
 
-    UISearchBar*                _searchBar;
-    UISearchDisplayController*  _searchDisplayController;
-    NSURLSessionDataTask*       _searchTask;
-    NSMutableArray*             _symbolArray;
-}
+// Coded UI, will move to storyboard in future version
+@property (nonatomic, strong) UIView *customEditView;
+@property (nonatomic, strong) UITextView *configurationTextView;
+@property (nonatomic, strong) UISearchBar *searchBar;
+// Depricated in iOS 8; will replace with storyboard version later
+@property (nonatomic, strong) UISearchDisplayController *searchDisplayController;
+// Variables
+@property (nonatomic, strong) NSURLSessionDataTask *searchTask;
+@property (nonatomic, strong) NSMutableArray *symbolArray;
+
+@end
+
+@implementation MainViewController
 
 #pragma mark UIViewController Methods
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    // Init view
     [self.view setBackgroundColor:[UIColor colorWithRed:0.145 green:0.545 blue:0.816 alpha:1] /*#258bd0*/];
     
-    _symbolArray = [NSMutableArray new];
+    self.symbolArray = [NSMutableArray new];
     
     float margin = 8;
     float padding = 4;
@@ -66,28 +77,28 @@
     [searchBarContainer setClipsToBounds:YES];
     [self.view addSubview:searchBarContainer];
     
-    _searchBar = [UISearchBar new];
+    self.searchBar = [UISearchBar new];
     if([[[UIDevice currentDevice] systemVersion] floatValue] >= 7)
     {
-        _searchBar.barTintColor = [UIColor blackColor];
-        _searchBar.backgroundImage = [UIImage imageNamed:@"clear-background"];
-        [_searchBar setBarTintColor:[UIColor whiteColor]];
-        [_searchBar setTintColor:[UIColor whiteColor]];
+        self.searchBar.barTintColor = [UIColor blackColor];
+        self.searchBar.backgroundImage = [UIImage imageNamed:@"clear-background"];
+        [self.searchBar setBarTintColor:[UIColor whiteColor]];
+        [self.searchBar setTintColor:[UIColor whiteColor]];
     }
     else
     {
-        [_searchBar setTintColor:[UIColor colorWithRed:0.145 green:0.545 blue:0.816 alpha:1] /*#258bd0*/];
+        [self.searchBar setTintColor:[UIColor colorWithRed:0.145 green:0.545 blue:0.816 alpha:1] /*#258bd0*/];
     }
-    [_searchBar setDelegate:self];
-    [_searchBar setPlaceholder:@"Search for Company"];
-    [_searchBar setSearchBarStyle:UISearchBarStyleProminent];
-    [_searchBar setFrame:searchBarContainer.bounds];
-    [searchBarContainer addSubview:_searchBar];
+    [self.searchBar setDelegate:self];
+    [self.searchBar setPlaceholder:@"Search for Company"];
+    [self.searchBar setSearchBarStyle:UISearchBarStyleProminent];
+    [self.searchBar setFrame:searchBarContainer.bounds];
+    [searchBarContainer addSubview:self.searchBar];
     
-    _searchDisplayController = [[UISearchDisplayController alloc]initWithSearchBar:_searchBar contentsController:self];
-    [_searchDisplayController setDelegate:self];
-    [_searchDisplayController setSearchResultsDataSource:self];
-    [_searchDisplayController setSearchResultsDelegate:self];
+    self.searchDisplayController = [[UISearchDisplayController alloc]initWithSearchBar:self.searchBar contentsController:self];
+    [self.searchDisplayController setDelegate:self];
+    [self.searchDisplayController setSearchResultsDataSource:self];
+    [self.searchDisplayController setSearchResultsDelegate:self];
 
     CGFloat viewHeight = self.view.bounds.size.height;
     CGFloat contentStart = CGRectGetMaxY(searchBarContainer.frame) + margin;
@@ -96,32 +107,32 @@
     halfHeight = floorf(halfHeight);
     
     //Create the Watchlist F2 View
-    _f2WatchlistView = [[F2AppView alloc]initWithFrame:CGRectMake(padding, contentStart, 310, halfHeight)];
-    [_f2WatchlistView setDelegate:self];
-    [_f2WatchlistView setScrollable:YES];
-    [_f2WatchlistView setScale:0.9f];
-    [_f2WatchlistView setAppJSONConfig:@"[{\"appId\": \"com_f2_examples_javascript_watchlist\",\"manifestUrl\": \"http://www.openf2.org/Examples/Apps\",\"name\": \"Watchlist\"}]"];
-    [_f2WatchlistView registerEvent:@"F2.Constants.Events.APP_SYMBOL_CHANGE" key:kEventAppSymbolChange dataValueGetter:@"data.symbol"];
-    [_f2WatchlistView loadApp];
-    [self.view addSubview:_f2WatchlistView];
+    self.f2WatchListView = [[F2AppView alloc]initWithFrame:CGRectMake(padding, contentStart, 310, halfHeight)];
+    [self.f2WatchListView setDelegate:self];
+    [self.f2WatchListView setScrollable:YES];
+    [self.f2WatchListView setScale:0.9f];
+    [self.f2WatchListView setAppJSONConfig:@"[{\"appId\": \"com_f2_examples_javascript_watchlist\",\"manifestUrl\": \"https://www.openf2.org/Examples/Apps\",\"name\": \"Watchlist\"}]"];
+    [self.f2WatchListView registerEvent:@"F2.Constants.Events.APP_SYMBOL_CHANGE" key:kEventAppSymbolChange dataValueGetter:@"data.symbol"];
+    [self.f2WatchListView loadApp];
+    [self.view addSubview:self.f2WatchListView];
     
     //Create the Quote F2 View
-    _f2QuoteView = [[F2AppView alloc]initWithFrame:CGRectMake(CGRectGetMaxX(_f2WatchlistView.frame)+padding, contentStart, 350, halfHeight)];
-    [_f2QuoteView setDelegate:self];
-    [_f2QuoteView setScrollable:NO];
-    [_f2QuoteView setScale:0.9f];
-    [_f2QuoteView setAppJSONConfig:@"[{\"appId\": \"com_openf2_examples_javascript_quote\",\"manifestUrl\": \"http://www.openf2.org/Examples/Apps\",\"name\": \"Quote\", \"context\":{\"symbol\":\"MSFT\"}}]"];
-    [_f2QuoteView loadApp];
-    [self.view addSubview:_f2QuoteView];
+    self.f2QuoteView = [[F2AppView alloc]initWithFrame:CGRectMake(CGRectGetMaxX(self.f2QuoteView.frame)+padding, contentStart, 350, halfHeight)];
+    [self.f2QuoteView setDelegate:self];
+    [self.f2QuoteView setScrollable:NO];
+    [self.f2QuoteView setScale:0.9f];
+    [self.f2QuoteView setAppJSONConfig:@"[{\"appId\": \"com_openf2_examples_javascript_quote\",\"manifestUrl\": \"https://www.openf2.org/Examples/Apps\",\"name\": \"Quote\", \"context\":{\"symbol\":\"MSFT\"}}]"];
+    [self.f2QuoteView loadApp];
+    [self.view addSubview:self.f2QuoteView];
     
     //Create the Chart F2 View
-    _f2ChartView = [[F2AppView alloc]initWithFrame:CGRectMake(padding, CGRectGetMaxY(_f2QuoteView.frame)+padding, CGRectGetMaxX(_f2QuoteView.frame)-padding, halfHeight)];
-    [_f2ChartView setDelegate:self];
-    [_f2ChartView setScrollable:NO];
-    [_f2ChartView setScale:0.8f];
-    [_f2ChartView setAdditionalCss:@"h2 {font-size:23px}"];
-    [_f2ChartView setAppJSONConfig:@"[{\"appId\": \"com_openf2_examples_csharp_chart\",\"manifestUrl\": \"http://www.openf2.org/Examples/Apps\",\"name\": \"One Year Price Movement\"}]"];
-    [_f2ChartView loadApp];
+    self.f2ChartView = [[F2AppView alloc]initWithFrame:CGRectMake(padding, CGRectGetMaxY(self.f2QuoteView.frame)+padding, CGRectGetMaxX(_f2QuoteView.frame)-padding, halfHeight)];
+    [self.f2ChartView setDelegate:self];
+    [self.f2ChartView setScrollable:NO];
+    [self.f2ChartView setScale:0.8f];
+    [self.f2ChartView setAdditionalCss:@"h2 {font-size:23px}"];
+    [self.f2ChartView setAppJSONConfig:@"[{\"appId\": \"com_openf2_examples_csharp_chart\",\"manifestUrl\": \"https://www.openf2.org/Examples/Apps\",\"name\": \"One Year Price Movement\"}]"];
+    [self.f2ChartView loadApp];
     [self.view addSubview:_f2ChartView];
     
     //Create Flip Containter
@@ -130,24 +141,24 @@
     [self.view addSubview:flipContainer];
     
     //Create the Custom F2 View
-    _f2CustomView = [[F2AppView alloc]initWithFrame:flipContainer.bounds];
-    [_f2CustomView setDelegate:self];
-    [_f2CustomView setScrollable:YES];
-    [_f2CustomView setScale:0.9f];
-    [_f2CustomView setAppJSONConfig:@"[{\"appId\": \"com_openf2_examples_csharp_stocknews\",\n\"manifestUrl\": \"http://www.openf2.org/Examples/Apps\",\n\"name\": \"Stock News\"\n}]"];
-    [_f2CustomView loadApp];
-    [flipContainer addSubview:_f2CustomView];
+    self.f2CustomView = [[F2AppView alloc]initWithFrame:flipContainer.bounds];
+    [self.f2CustomView setDelegate:self];
+    [self.f2CustomView setScrollable:YES];
+    [self.f2CustomView setScale:0.9f];
+    [self.f2CustomView setAppJSONConfig:@"[{\"appId\": \"com_openf2_examples_csharp_stocknews\",\n\"manifestUrl\": \"https://www.openf2.org/Examples/Apps\",\n\"name\": \"Stock News\"\n}]"];
+    [self.f2CustomView loadApp];
+    [flipContainer addSubview:self.f2CustomView];
     
     CGRect _editViewFrame = flipContainer.bounds;
     _editViewFrame.size.height = 336;
-    _customEditView = [[UIView alloc]initWithFrame:_editViewFrame];
-    [_customEditView setBackgroundColor:[UIColor colorWithWhite:0 alpha:0.5]];
+    self.customEditView = [[UIView alloc]initWithFrame:_editViewFrame];
+    [self.customEditView setBackgroundColor:[UIColor colorWithWhite:0 alpha:0.5]];
     
 
-    _configurationTextView = [[UITextView alloc]initWithFrame:CGRectMake(padding, padding, CGRectGetWidth(flipContainer.frame)-(padding*2), 224)];
-    [_configurationTextView setText:@"[{\n\"appId\": \"com_openf2_examples_csharp_stocknews\",\n\"manifestUrl\": \"http://www.openf2.org/Examples/Apps\",\n\"name\": \"Stock News\"\n}]"];
-    [_configurationTextView setFont:[UIFont fontWithName:@"CourierNewPSMT" size:15]];
-    [_customEditView addSubview:_configurationTextView];
+    self.configurationTextView = [[UITextView alloc]initWithFrame:CGRectMake(padding, padding, CGRectGetWidth(flipContainer.frame)-(padding*2), 224)];
+    [self.configurationTextView setText:@"[{\n\"appId\": \"com_openf2_examples_csharp_stocknews\",\n\"manifestUrl\": \"https://www.openf2.org/Examples/Apps\",\n\"name\": \"Stock News\"\n}]"];
+    [self.configurationTextView setFont:[UIFont fontWithName:@"CourierNewPSMT" size:15]];
+    [self.customEditView addSubview:self.configurationTextView];
     
     UIButton* customViewMarketNewsButton = [UIButton buttonWithType:UIButtonTypeSystem];
     [customViewMarketNewsButton.titleLabel setFont:[UIFont fontWithName:@"Helvetica-Bold" size:20]];
@@ -155,9 +166,9 @@
     [customViewMarketNewsButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [customViewMarketNewsButton.layer setBorderColor:[UIColor whiteColor].CGColor];
     [customViewMarketNewsButton.layer setBorderWidth:1];
-    [customViewMarketNewsButton setFrame:CGRectMake(padding, CGRectGetMaxY(_configurationTextView.frame)+padding, (CGRectGetWidth(_customEditView.frame)/2)-(padding*1.5), 40)];
+    [customViewMarketNewsButton setFrame:CGRectMake(padding, CGRectGetMaxY(_configurationTextView.frame)+padding, (CGRectGetWidth(self.customEditView.frame)/2)-(padding*1.5), 40)];
     [customViewMarketNewsButton addTarget:self action:@selector(marketNewsButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-    [_customEditView addSubview:customViewMarketNewsButton];
+    [self.customEditView addSubview:customViewMarketNewsButton];
     
     UIButton* customViewStockNewsButton = [UIButton buttonWithType:UIButtonTypeSystem];
     [customViewStockNewsButton.titleLabel setFont:[UIFont fontWithName:@"Helvetica-Bold" size:20]];
@@ -165,30 +176,32 @@
     [customViewStockNewsButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [customViewStockNewsButton.layer setBorderColor:[UIColor whiteColor].CGColor];
     [customViewStockNewsButton.layer setBorderWidth:1];
-    [customViewStockNewsButton setFrame:CGRectMake(CGRectGetMaxX(customViewMarketNewsButton.frame)+padding, CGRectGetMaxY(_configurationTextView.frame)+padding, (CGRectGetWidth(_customEditView.frame)/2)-(padding*1.5), 40)];
+    [customViewStockNewsButton setFrame:CGRectMake(CGRectGetMaxX(customViewMarketNewsButton.frame)+padding, CGRectGetMaxY(_configurationTextView.frame)+padding, (CGRectGetWidth(self.customEditView.frame)/2)-(padding*1.5), 40)];
 
     [customViewStockNewsButton addTarget:self action:@selector(stockNewsButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-    [_customEditView addSubview:customViewStockNewsButton];
+    [self.customEditView addSubview:customViewStockNewsButton];
     
     UIButton* customViewDoneButton = [UIButton buttonWithType:UIButtonTypeSystem];
     [customViewDoneButton.titleLabel setFont:[UIFont fontWithName:@"Helvetica-Bold" size:20]];
     [customViewDoneButton setTitle:@"Done" forState:UIControlStateNormal];
     [customViewDoneButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [customViewDoneButton setBackgroundColor:[UIColor colorWithRed:29.0f/255 green:104.0f/255 blue:153.0f/255 alpha:1]];
-    [customViewDoneButton setFrame:CGRectMake(CGRectGetWidth(_customEditView.frame)/4, CGRectGetMaxY(customViewStockNewsButton.frame)+padding, CGRectGetWidth(_customEditView.frame)/2, 40)];
+    [customViewDoneButton setFrame:CGRectMake(CGRectGetWidth(self.customEditView.frame)/4, CGRectGetMaxY(customViewStockNewsButton.frame)+padding, CGRectGetWidth(self.customEditView.frame)/2, 40)];
     [customViewDoneButton addTarget:self action:@selector(donePressed) forControlEvents:UIControlEventTouchUpInside];
-    [_customEditView addSubview:customViewDoneButton];
+    [self.customEditView addSubview:customViewDoneButton];
     
      UIButton* customViewInfoButton = [UIButton buttonWithType:UIButtonTypeInfoDark];
     [customViewInfoButton setFrame:CGRectMake(CGRectGetWidth(flipContainer.frame)-32, CGRectGetHeight(flipContainer.frame)-32, 32, 32)];
     [customViewInfoButton addTarget:self action:@selector(infoPressed) forControlEvents:UIControlEventTouchUpInside];
     [_f2CustomView addSubview:customViewInfoButton];
+    
+    
 }
 
--(void)viewDidAppear:(BOOL)animated{
-    [super viewDidAppear:animated];
-}
-
+//-(void)viewDidAppear:(BOOL)animated{
+//    [super viewDidAppear:animated];
+//}
+//
 -(void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation{
     [super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
 }
@@ -205,7 +218,7 @@
     NSURL* URL = [NSURL URLWithString:searchURL];
     NSURLRequest* request = [NSURLRequest requestWithURL:URL];
     NSURLSession* session = [NSURLSession sharedSession];
-    _searchTask = [session dataTaskWithRequest:request
+    self.searchTask = [session dataTaskWithRequest:request
                              completionHandler:^(NSData* data, NSURLResponse* response, NSError* sessionError) {
                                  if (!sessionError) {
                                      NSError* JSONerror = nil;
@@ -214,8 +227,8 @@
                                          NSLog(@"JSONObjectWithData error: %@", JSONerror);
                                      }else{
                                          dispatch_sync(dispatch_get_main_queue(), ^{
-                                             _symbolArray = [NSMutableArray arrayWithArray:responses];
-                                             [_searchDisplayController.searchResultsTableView reloadData];
+                                             self.symbolArray = [NSMutableArray arrayWithArray:responses];
+                                             [self.searchDisplayController.searchResultsTableView reloadData];
                                          });
                                      }
                                  }
@@ -225,12 +238,12 @@
                                  });
                                  
                              }];
-    [_searchTask resume];
+    [self.searchTask resume];
 }
 
 - (void)goForSymbol:(NSString*)symbol {
-    if (![_currentSymbol isEqualToString:symbol]) {
-        _currentSymbol = symbol;
+    if (![self.currentSymbol isEqualToString:symbol]) {
+        self.currentSymbol = symbol;
         [_f2ChartView sendJavaScript:[NSString stringWithFormat:@"F2.Events.emit(F2.Constants.Events.CONTAINER_SYMBOL_CHANGE, { 'symbol': '%@' });",symbol]];
         [_f2QuoteView sendJavaScript:[NSString stringWithFormat:@"F2.Events.emit(F2.Constants.Events.CONTAINER_SYMBOL_CHANGE, { 'symbol': '%@' });",symbol]];
         [_f2CustomView sendJavaScript:[NSString stringWithFormat:@"F2.Events.emit(F2.Constants.Events.CONTAINER_SYMBOL_CHANGE, { 'symbol': '%@' });",symbol]];
@@ -269,12 +282,12 @@
 -(void)resfresh{
     NSString * customConfig = @"[{\n\"appId\": \"com_openf2_examples_csharp_stocknews\",\n\"manifestUrl\": \"http://www.openf2.org/Examples/Apps\",\n\"name\": \"Stock News\"\n}]";
     [_configurationTextView setText:customConfig];
-    [_f2CustomView setAppJSONConfig:customConfig];
-    _currentSymbol = @"MSFT";//this seems to be the default
-    [_f2CustomView loadApp];
-    [_f2ChartView loadApp];
-    [_f2QuoteView loadApp];
-    [_f2WatchlistView loadApp];
+    [self.f2CustomView setAppJSONConfig:customConfig];
+    self.currentSymbol = @"MSFT";//this seems to be the default
+    [self.f2CustomView loadApp];
+    [self.f2ChartView loadApp];
+    [self.f2QuoteView loadApp];
+    [self.f2WatchListView loadApp];
 }
 
 - (void)f2ButtonPressed {
@@ -283,18 +296,18 @@
 
 #pragma mark UISearchBarDelegate Methods
 - (void)searchBar:(UISearchBar*)searchBar textDidChange:(NSString*)searchText{
-    [_searchTask cancel];
+    [self.searchTask cancel];
     if (searchText.length>0) {
         [self searchFor:searchText];
     }else{
-        [_symbolArray removeAllObjects];
-        [_searchDisplayController.searchResultsTableView reloadData];
+        [self.symbolArray removeAllObjects];
+        [self.searchDisplayController.searchResultsTableView reloadData];
     }
 }
 
 #pragma mark UITableViewDataSource Methods
 - (NSInteger)tableView:(UITableView*)tableView numberOfRowsInSection:(NSInteger)section{
-    return _symbolArray.count;
+    return self.symbolArray.count;
 }
 
 - (UITableViewCell*)tableView:(UITableView*)tableView cellForRowAtIndexPath:(NSIndexPath*)indexPath{
@@ -304,7 +317,7 @@
         [cell.textLabel setTextColor:[UIColor blackColor]];
         [cell.detailTextLabel setTextColor:self.view.backgroundColor];
     }
-    NSDictionary* symbol = [_symbolArray objectAtIndex:indexPath.row];
+    NSDictionary* symbol = [self.symbolArray objectAtIndex:indexPath.row];
     [cell.textLabel setText:symbol[kSymbolKey]];
     [cell.detailTextLabel setText:[NSString stringWithFormat:@"%@ - %@",symbol[kNameKey],symbol[kExhangeKey]]];
     return cell;
@@ -312,10 +325,10 @@
 
 #pragma mark UITableViewDelegate Methods
 -(void)tableView:(UITableView*)tableView didSelectRowAtIndexPath:(NSIndexPath*)indexPath{
-    NSDictionary* symbol = [_symbolArray objectAtIndex:indexPath.row];
+    NSDictionary* symbol = [self.symbolArray objectAtIndex:indexPath.row];
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
-    [_searchDisplayController setActive:NO animated:YES];
-    [_searchBar setText:[NSString stringWithFormat:@"%@ %@",symbol[kSymbolKey],symbol[kNameKey]]];
+    [self.searchDisplayController setActive:NO animated:YES];
+    [self.searchBar setText:[NSString stringWithFormat:@"%@ %@",symbol[kSymbolKey],symbol[kNameKey]]];
     [self goForSymbol:symbol[kSymbolKey]];
 }
 
@@ -323,7 +336,7 @@
 -(void)F2View:(F2AppView*)appView messageRecieved:(NSString*)message withKey:(NSString*)key{
     if ([key isEqualToString:kEventAppSymbolChange]){
         [self goForSymbol:message];
-        [_searchBar setText:message];
+        [self.searchBar setText:message];
     }
 }
 
