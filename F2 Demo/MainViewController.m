@@ -111,30 +111,30 @@
     [self.f2WatchListView setDelegate:self];
     [self.f2WatchListView setScrollable:YES];
     [self.f2WatchListView setScale:0.9f];
-    [self.f2WatchListView setAppJSONConfig:@"[{\"appId\": \"com_f2_examples_javascript_watchlist\",\"manifestUrl\": \"https://www.openf2.org/Examples/Apps\",\"name\": \"Watchlist\"}]"];
+    [self.f2WatchListView setAppJSONConfig:@"[{\"appId\": \"com_f2_examples_javascript_watchlist\",\"manifestUrl\": \"http://www.openf2.org/Examples/Apps\",\"name\": \"Watchlist\"}]"];
     [self.f2WatchListView registerEvent:@"F2.Constants.Events.APP_SYMBOL_CHANGE" key:kEventAppSymbolChange dataValueGetter:@"data.symbol"];
     [self.f2WatchListView loadApp];
     [self.view addSubview:self.f2WatchListView];
     
     //Create the Quote F2 View
-    self.f2QuoteView = [[F2AppView alloc]initWithFrame:CGRectMake(CGRectGetMaxX(self.f2QuoteView.frame)+padding, contentStart, 350, halfHeight)];
+    self.f2QuoteView = [[F2AppView alloc]initWithFrame:CGRectMake(CGRectGetMaxX(self.f2WatchListView.frame)+padding, contentStart, 350, halfHeight)];
     [self.f2QuoteView setDelegate:self];
     [self.f2QuoteView setScrollable:NO];
     [self.f2QuoteView setScale:0.9f];
-    [self.f2QuoteView setAppJSONConfig:@"[{\"appId\": \"com_openf2_examples_javascript_quote\",\"manifestUrl\": \"https://www.openf2.org/Examples/Apps\",\"name\": \"Quote\", \"context\":{\"symbol\":\"MSFT\"}}]"];
+    [self.f2QuoteView setAppJSONConfig:@"[{\"appId\": \"com_openf2_examples_javascript_quote\",\"manifestUrl\": \"http://www.openf2.org/Examples/Apps\",\"name\": \"Quote\", \"context\":{\"symbol\":\"MSFT\"}}]"];
     [self.f2QuoteView loadApp];
     [self.view addSubview:self.f2QuoteView];
-    
+
     //Create the Chart F2 View
     self.f2ChartView = [[F2AppView alloc]initWithFrame:CGRectMake(padding, CGRectGetMaxY(self.f2QuoteView.frame)+padding, CGRectGetMaxX(_f2QuoteView.frame)-padding, halfHeight)];
     [self.f2ChartView setDelegate:self];
     [self.f2ChartView setScrollable:NO];
     [self.f2ChartView setScale:0.8f];
     [self.f2ChartView setAdditionalCss:@"h2 {font-size:23px}"];
-    [self.f2ChartView setAppJSONConfig:@"[{\"appId\": \"com_openf2_examples_csharp_chart\",\"manifestUrl\": \"https://www.openf2.org/Examples/Apps\",\"name\": \"One Year Price Movement\"}]"];
+    [self.f2ChartView setAppJSONConfig:@"[{\"appId\": \"com_openf2_examples_csharp_chart\",\"manifestUrl\": \"http://www.openf2.org/Examples/Apps\",\"name\": \"One Year Price Movement\"}]"];
     [self.f2ChartView loadApp];
     [self.view addSubview:_f2ChartView];
-    
+
     //Create Flip Containter
     CGFloat flipX = CGRectGetMaxX(_f2QuoteView.frame)+padding;
     UIView* flipContainer = [[UIView alloc]initWithFrame:CGRectMake(flipX, contentStart, self.view.bounds.size.width-flipX-padding, fullHeight)];
@@ -145,7 +145,7 @@
     [self.f2CustomView setDelegate:self];
     [self.f2CustomView setScrollable:YES];
     [self.f2CustomView setScale:0.9f];
-    [self.f2CustomView setAppJSONConfig:@"[{\"appId\": \"com_openf2_examples_csharp_stocknews\",\n\"manifestUrl\": \"https://www.openf2.org/Examples/Apps\",\n\"name\": \"Stock News\"\n}]"];
+    [self.f2CustomView setAppJSONConfig:@"[{\"appId\": \"com_openf2_examples_csharp_stocknews\",\n\"manifestUrl\": \"http://www.openf2.org/Examples/Apps\",\n\"name\": \"Stock News\"\n}]"];
     [self.f2CustomView loadApp];
     [flipContainer addSubview:self.f2CustomView];
     
@@ -156,7 +156,7 @@
     
 
     self.configurationTextView = [[UITextView alloc]initWithFrame:CGRectMake(padding, padding, CGRectGetWidth(flipContainer.frame)-(padding*2), 224)];
-    [self.configurationTextView setText:@"[{\n\"appId\": \"com_openf2_examples_csharp_stocknews\",\n\"manifestUrl\": \"https://www.openf2.org/Examples/Apps\",\n\"name\": \"Stock News\"\n}]"];
+    [self.configurationTextView setText:@"[{\n\"appId\": \"com_openf2_examples_csharp_stocknews\",\n\"manifestUrl\": \"http://www.openf2.org/Examples/Apps\",\n\"name\": \"Stock News\"\n}]"];
     [self.configurationTextView setFont:[UIFont fontWithName:@"CourierNewPSMT" size:15]];
     [self.customEditView addSubview:self.configurationTextView];
     
